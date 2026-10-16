@@ -4,24 +4,27 @@ import BaseHead, { type Props as HeadProps } from '../components/layout/BaseHead
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
 
-type Props = HeadProps;
+type Props = HeadProps & {
+    /** Color theme for the page; see the [data-theme] blocks in globals.css. */
+    theme?: 'default' | 'after-hours';
+};
 
-const headProps = Astro.props;
+const { theme = 'default', ...headProps } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en" id="top">
+<html lang="en" id="top" data-theme={theme === 'default' ? undefined : theme}>
     <head>
         <BaseHead {...headProps} />
         <slot name="head" />
     </head>
     <body class="flex min-h-screen flex-col overflow-x-clip">
-        <a href="#main" class="sr-only z-[60] rounded-full bg-fg px-4 py-2 text-sm font-semibold text-canvas focus:not-sr-only focus:fixed focus:top-3 focus:left-3">
+        <a href="#main" class="sr-only z-[60] print:hidden rounded-full bg-fg px-4 py-2 text-sm font-semibold text-canvas focus:not-sr-only focus:fixed focus:top-3 focus:left-3">
             Skip to content
         </a>
 
         <!-- Ambient background: drifting accent glows, a fading grid and film grain. Purely decorative. -->
-        <div class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[56rem] overflow-hidden" aria-hidden="true">
+        <div class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[56rem] overflow-hidden print:hidden" aria-hidden="true">
             <div class="bg-grid absolute inset-0"></div>
             <div
                 class="animate-drift absolute -top-[22rem] -left-[12rem] size-[48rem] rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--color-accent)_30%,transparent),transparent)]"
@@ -32,7 +35,7 @@ const headProps = Astro.props;
             >
             </div>
         </div>
-        <div class="bg-noise pointer-events-none fixed inset-0 -z-20 opacity-[0.06]" aria-hidden="true"></div>
+        <div class="bg-noise pointer-events-none fixed inset-0 -z-20 opacity-[0.06] print:hidden" aria-hidden="true"></div>
 
         <Header />
         <main id="main" class="flex-1">

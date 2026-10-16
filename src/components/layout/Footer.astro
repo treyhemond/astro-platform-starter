@@ -3,17 +3,20 @@ import Logo from './Logo.astro';
 import Icon from '../ui/Icon.astro';
 import SocialLinks from '../ui/SocialLinks.astro';
 import { site } from '../../config/site';
+import { resume } from '../../data/resume';
 
 const year = new Date().getFullYear();
 ---
 
-<footer class="relative mt-auto border-t border-line">
+<footer class="relative mt-auto border-t border-line print:hidden">
     <div class="container-page flex flex-col gap-10 py-12 sm:py-14">
         <div class="flex flex-col justify-between gap-8 sm:flex-row sm:items-start">
             <div class="max-w-sm">
                 <a href="/" class="inline-block rounded-xl" aria-label={`${site.name} — home`}><Logo /></a>
                 <p class="mt-4 text-sm leading-relaxed text-muted">
-                    Building in public. This site is a work in progress and changes often — check back soon.
+                    {resume.headline.join(' • ')}
+                    <br />
+                    Based in {resume.location.city}, {resume.location.region}.
                 </p>
             </div>
             <div class="flex flex-col gap-6 sm:items-end">
@@ -47,6 +50,10 @@ const year = new Date().getFullYear();
             </p>
             <div class="flex items-center gap-4">
                 <span class="font-mono">{site.version}</span>
+                <!-- The only link to the semi-hidden After Hours section: deliberately faint. -->
+                <a href={site.afterHours.href} title={site.afterHours.title} class="text-subtle/40 transition-colors hover:text-accent">
+                    <Icon name="moon" class="size-3.5" label={site.afterHours.title} />
+                </a>
                 <a href="#top" class="group inline-flex items-center gap-1.5 text-muted transition-colors hover:text-fg">
                     Back to top
                     <Icon name="arrow-up" class="size-3.5 transition-transform group-hover:-translate-y-0.5" />

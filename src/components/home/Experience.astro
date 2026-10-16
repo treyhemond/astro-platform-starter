@@ -1,0 +1,32 @@
+---
+import Section from '../ui/Section.astro';
+import ArrowLink from '../ui/ArrowLink.astro';
+import Icon from '../ui/Icon.astro';
+import Timeline from '../ui/Timeline.astro';
+import { resume } from '../../data/resume';
+
+const columns = [
+    { title: 'Professional experience', icon: 'briefcase' as const, items: resume.experience },
+    { title: 'Leadership', icon: 'users' as const, items: resume.leadership }
+];
+---
+
+<Section id="experience" eyebrow="Experience" title="Where I've worked and led">
+    <ArrowLink slot="action" href="/resume">Full resume</ArrowLink>
+
+    <div class="grid gap-14 lg:grid-cols-2 lg:gap-16">
+        {
+            columns.map((column, i) => (
+                <div data-reveal data-reveal-delay={String(i * 100)}>
+                    <h3 class="mb-8 flex items-center gap-3 text-lg">
+                        <span class="grid size-9 place-items-center rounded-lg border border-line bg-white/[0.03] text-accent">
+                            <Icon name={column.icon} class="size-4" />
+                        </span>
+                        {column.title}
+                    </h3>
+                    <Timeline items={column.items} />
+                </div>
+            ))
+        }
+    </div>
+</Section>

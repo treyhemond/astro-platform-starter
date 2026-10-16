@@ -86,7 +86,76 @@ function initRotator() {
     });
 }
 
+/** [data-count="5000"]: count up from zero when scrolled into view. Optional data-prefix / data-suffix wrap the number. */
+function initCountUp() {
+    if (prefersReducedMotion || !('IntersectionObserver' in window)) return;
+
+    const format = new Intl.NumberFormat('en-US');
+    const observer = new IntersectionObserver(
+        (entries) => {
+            for (const entry of entries) {
+                if (!entry.isIntersecting) continue;
+                observer.unobserve(entry.target);
+
+                const el = entry.target as HTMLElement;
+                const target = Number(el.dataset.count);
+                const finalText = el.textContent;
+                const { prefix = '', suffix = '' } = el.dataset;
+                const duration = 1400;
+                const start = performance.now();
+
+                const tick = (now: number) => {
+                    const progress = Math.min((now - start) / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    el.textContent = `${prefix}${format.format(Math.round(target * eased))}${suffix}`;
+                    if (progress < 1) requestAnimationFrame(tick);
+                    else el.textContent = finalText;
+                };
+                requestAnimationFrame(tick);
+            }
+        },
+        { threshold: 0.6 }
+    );
+
+    document.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => observer.observe(el));
+}
+
+/** [data-copy="text"]: copy to the clipboard. Buttons start hidden and are only shown when the Clipboard API exists. */
+function initCopy() {
+    if (!navigator.clipboard) return;
+
+    document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
+        const status = button.querySelector<HTMLElement>('[data-copy-status]');
+        const idleText = status?.textContent ?? '';
+        button.hidden = false;
+        button.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(button.dataset.copy ?? '');
+            } catch {
+                return;
+            }
+            button.setAttribute('data-copied', '');
+            if (status) status.textContent = 'Copied!';
+            window.setTimeout(() => {
+                button.removeAttribute('data-copied');
+                if (status) status.textContent = idleText;
+            }, 2000);
+        });
+    });
+}
+
+/** [data-print]: open the print dialog (buttons start hidden, since printing needs JS). */
+function initPrint() {
+    document.querySelectorAll<HTMLButtonElement>('[data-print]').forEach((button) => {
+        button.hidden = false;
+        button.addEventListener('click', () => window.print());
+    });
+}
+
 initHeader();
 initReveal();
 initSpotlight();
 initRotator();
+initCountUp();
+initCopy();
+initPrint();

@@ -1,0 +1,22 @@
+---
+import Section from '../ui/Section.astro';
+import ArrowLink from '../ui/ArrowLink.astro';
+import WorkCard from '../work/WorkCard.astro';
+import { getFeaturedWork } from '../../lib/content';
+
+const work = await getFeaturedWork(4);
+---
+
+<Section id="work" eyebrow="Selected work" title="Results I'm proud of" description="Highlights from sales, PR and campaign work: the context, what I did, and what came of it.">
+    <ArrowLink slot="action" href="/work">All work</ArrowLink>
+
+    <div class="grid gap-5 md:grid-cols-2">
+        {
+            work.map((item, i) => (
+                <div data-reveal data-reveal-delay={String((i % 2) * 100)}>
+                    <WorkCard work={item} class="h-full" />
+                </div>
+            ))
+        }
+    </div>
+</Section>

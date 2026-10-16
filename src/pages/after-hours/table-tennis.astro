@@ -1,0 +1,243 @@
+---
+// Example of a custom interactive After Hours page. It's listed on /after-hours through
+// src/content/after-hours/table-tennis.md (whose `href` points here).
+import AfterHoursLayout from '../../layouts/AfterHoursLayout.astro';
+import Icon from '../../components/ui/Icon.astro';
+
+const players = [0, 1];
+---
+
+<AfterHoursLayout title="Table tennis scorekeeper" description="A phone-friendly ping-pong scorekeeper that tracks serves, deuce and games." back wide>
+    <header class="mb-8">
+        <h1 class="text-3xl tracking-tight sm:text-4xl"><span aria-hidden="true">🏓</span> Table tennis scorekeeper</h1>
+        <p class="mt-3 max-w-2xl text-muted">
+            Tap a player's side to give them a point. Serves, deuce and games are tracked for you. Games go to 11, win by 2.
+        </p>
+    </header>
+
+    <noscript>
+        <p class="card p-5 text-muted">The scorekeeper needs JavaScript turned on.</p>
+    </noscript>
+
+    <div data-scorekeeper hidden class="space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <label class="flex items-center gap-2 text-sm text-muted">
+                Match
+                <select data-best-of class="rounded-full border border-line bg-surface px-3 py-1.5 text-fg">
+                    <option value="1">Single game</option>
+                    <option value="3">Best of 3</option>
+                    <option value="5">Best of 5</option>
+                    <option value="7">Best of 7</option>
+                </select>
+            </label>
+            <p class="font-mono text-sm text-muted">Games <span data-games class="text-fg">0 – 0</span></p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 sm:gap-5">
+            {
+                players.map((i) => (
+                    <div
+                        data-player={i}
+                        class="group/panel card overflow-hidden data-serving:border-accent/60 data-serving:shadow-[0_0_40px_-12px] data-serving:shadow-accent/50"
+                    >
+                        <input
+                            data-name
+                            value={`Player ${i + 1}`}
+                            maxlength="20"
+                            aria-label={`Player ${i + 1} name`}
+                            class="w-full border-b border-line bg-transparent px-3 py-3 text-center font-semibold text-fg outline-none focus:bg-white/[0.04]"
+                        />
+                        <button
+                            type="button"
+                            data-point={i}
+                            class="flex h-52 w-full cursor-pointer flex-col items-center justify-center gap-3 transition select-none hover:bg-white/[0.03] active:bg-white/[0.06] disabled:cursor-default sm:h-72"
+                        >
+                            <span data-score class="text-gradient font-mono text-7xl font-bold tabular-nums sm:text-9xl">
+                                0
+                            </span>
+                            <span class="text-xs font-medium text-accent opacity-0 transition group-data-serving/panel:opacity-100">Serving</span>
+                            <span class="sr-only">Add a point for this player</span>
+                        </button>
+                    </div>
+                ))
+            }
+        </div>
+
+        <div data-status hidden role="status" aria-live="polite" class="card flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5">
+            <p data-status-text class="font-medium text-fg"></p>
+            <button type="button" data-next class="btn">
+                Next game
+                <Icon name="arrow-right" class="size-4" />
+            </button>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+            <button type="button" data-undo class="btn btn-ghost">
+                <Icon name="undo" class="size-4" />
+                Undo
+            </button>
+            <button type="button" data-swap class="btn btn-ghost">
+                <Icon name="repeat" class="size-4" />
+                Switch server
+            </button>
+            <button type="button" data-reset class="btn btn-ghost">
+                <Icon name="rotate-ccw" class="size-4" />
+                New match
+            </button>
+        </div>
+        <p class="text-xs text-subtle">Keyboard: ← and → score a point, Backspace undoes. The score is saved on this device.</p>
+    </div>
+</AfterHoursLayout>
+
+<script>
+    type Side = 0 | 1;
+    type Pair = [number, number];
+    interface Snapshot {
+        scores: Pair;
+        games: Pair;
+        firstServer: Side;
+    }
+    interface State extends Snapshot {
+        names: [string, string];
+        bestOf: number;
+        history: Snapshot[];
+    }
+
+    const STORAGE_KEY = 'after-hours:table-tennis';
+    const root = document.querySelector<HTMLElement>('[data-scorekeeper]');
+
+    if (root) {
+        root.hidden = false;
+        const q = <T extends Element>(selector: string) => root.querySelector<T>(selector)!;
+        const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-player]'));
+        const fresh = (): State => ({ names: ['Player 1', 'Player 2'], scores: [0, 0], games: [0, 0], firstServer: 0, bestOf: 3, history: [] });
+
+        let state: State = load() ?? fresh();
+
+        function load(): State | null {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                return raw ? { ...fresh(), ...JSON.parse(raw) } : null;
+            } catch {
+                return null;
+            }
+        }
+
+        function save() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch {
+                // Private browsing or storage disabled: the score just won't survive a reload.
+            }
+        }
+
+        const snapshot = (): Snapshot => ({ scores: [...state.scores], games: [...state.games], firstServer: state.firstServer });
+
+        // Games go to 11, win by 2.
+        function gameWinner(): Side | null {
+            const [a, b] = state.scores;
+            return (a >= 11 || b >= 11) && Math.abs(a - b) >= 2 ? (a > b ? 0 : 1) : null;
+        }
+
+        function matchWinner(): Side | null {
+            const needed = Math.ceil(state.bestOf / 2);
+            return state.games[0] >= needed ? 0 : state.games[1] >= needed ? 1 : null;
+        }
+
+        // Serve switches every 2 points, and every point once it's 10–10.
+        function server(): Side {
+            const total = state.scores[0] + state.scores[1];
+            const switches = total < 20 ? Math.floor(total / 2) : total - 10;
+            return ((state.firstServer + switches) % 2) as Side;
+        }
+
+        function point(side: Side) {
+            if (gameWinner() !== null || matchWinner() !== null) return;
+            state.history.push(snapshot());
+            state.scores[side]++;
+            const winner = gameWinner();
+            if (winner !== null) state.games[winner]++;
+            update();
+        }
+
+        function undo() {
+            const previous = state.history.pop();
+            if (previous) Object.assign(state, previous);
+            update();
+        }
+
+        function nextGame() {
+            if (gameWinner() === null || matchWinner() !== null) return;
+            state.history.push(snapshot());
+            state.scores = [0, 0];
+            state.firstServer = (1 - state.firstServer) as Side; // The other player serves first next game.
+            update();
+        }
+
+        function update() {
+            const gameOver = gameWinner();
+            const matchOver = matchWinner();
+            const playing = gameOver === null && matchOver === null;
+            const serving = server();
+
+            panels.forEach((panel, i) => {
+                panel.querySelector('[data-score]')!.textContent = String(state.scores[i]);
+                panel.toggleAttribute('data-serving', playing && serving === i);
+                panel.querySelector<HTMLButtonElement>('[data-point]')!.disabled = !playing;
+                const input = panel.querySelector<HTMLInputElement>('[data-name]')!;
+                if (document.activeElement !== input) input.value = state.names[i];
+            });
+
+            q('[data-games]').textContent = `${state.games[0]} – ${state.games[1]}`;
+            q<HTMLSelectElement>('[data-best-of]').value = String(state.bestOf);
+            q<HTMLButtonElement>('[data-undo]').disabled = state.history.length === 0;
+            q<HTMLButtonElement>('[data-swap]').disabled = state.scores[0] + state.scores[1] > 0;
+
+            const status = q<HTMLElement>('[data-status]');
+            status.hidden = playing;
+            q<HTMLButtonElement>('[data-next]').hidden = matchOver !== null;
+            if (matchOver !== null) {
+                q('[data-status-text]').textContent = `🏆 ${state.names[matchOver]} wins the match, ${Math.max(...state.games)}–${Math.min(...state.games)}!`;
+            } else if (gameOver !== null) {
+                q('[data-status-text]').textContent = `Game to ${state.names[gameOver]}, ${Math.max(...state.scores)}–${Math.min(...state.scores)}.`;
+            }
+
+            save();
+        }
+
+        panels.forEach((panel, i) => {
+            panel.querySelector('[data-point]')!.addEventListener('click', () => point(i as Side));
+            panel.querySelector('[data-name]')!.addEventListener('input', (event) => {
+                state.names[i] = (event.target as HTMLInputElement).value.trim() || `Player ${i + 1}`;
+                save();
+            });
+        });
+
+        q('[data-undo]').addEventListener('click', undo);
+        q('[data-next]').addEventListener('click', nextGame);
+        q('[data-swap]').addEventListener('click', () => {
+            state.firstServer = (1 - state.firstServer) as Side;
+            update();
+        });
+        q('[data-reset]').addEventListener('click', () => {
+            state = { ...fresh(), names: state.names, bestOf: state.bestOf };
+            update();
+        });
+        q('[data-best-of]').addEventListener('change', (event) => {
+            state.bestOf = Number((event.target as HTMLSelectElement).value);
+            update();
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement) return;
+            if (event.key === 'ArrowLeft') point(0);
+            else if (event.key === 'ArrowRight') point(1);
+            else if (event.key === 'Backspace') {
+                event.preventDefault();
+                undo();
+            }
+        });
+
+        update();
+    }
+</script>

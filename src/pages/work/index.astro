@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/ui/PageHeader.astro';
+import WorkCard from '../../components/work/WorkCard.astro';
+import { getWork } from '../../lib/content';
+
+const work = await getWork();
+const description = 'Case studies from sales, public relations, campaigns and student leadership: the context, what I did, and the results.';
+---
+
+<BaseLayout title="Work" description={description}>
+    <PageHeader eyebrow="Work" title="Selected work" description={description} />
+    <section class="container-page pb-24 sm:pb-32">
+        {
+            work.length > 0 ? (
+                <div class="grid gap-5 md:grid-cols-2">
+                    {work.map((item, i) => (
+                        <div data-reveal data-reveal-delay={String((i % 2) * 100)}>
+                            <WorkCard work={item} headingLevel={2} class="h-full" />
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <p class="text-muted">Nothing here yet — check back soon.</p>
+            )
+        }
+    </section>
+</BaseLayout>

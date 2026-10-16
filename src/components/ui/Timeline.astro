@@ -1,0 +1,35 @@
+---
+// Vertical timeline of roles. Data shape: `Role` from src/data/resume.ts.
+import { formatMonth, type Role } from '../../data/resume';
+
+interface Props {
+    items: Role[];
+}
+
+const { items } = Astro.props;
+---
+
+<ol class="relative space-y-10 border-l border-line pl-8">
+    {
+        items.map((item) => (
+            <li class="relative">
+                <span class="absolute top-1 -left-[2.4rem] size-3 rounded-full border-2 border-accent bg-canvas ring-4 ring-canvas" aria-hidden="true" />
+                <p class="font-mono text-xs text-subtle">
+                    <time datetime={item.start}>{formatMonth(item.start)}</time> –{' '}
+                    {item.end ? <time datetime={item.end}>{formatMonth(item.end)}</time> : 'Present'}
+                    {item.note && <span> · {item.note}</span>}
+                </p>
+                <h4 class="mt-2 text-lg font-semibold tracking-tight text-white">{item.role}</h4>
+                <p class="text-sm text-accent">{item.org}</p>
+                <ul class="mt-3 space-y-2 text-[0.95rem] leading-relaxed text-muted">
+                    {item.bullets.map((bullet) => (
+                        <li class="flex gap-3">
+                            <span class="mt-2.5 size-1 shrink-0 rounded-full bg-subtle" aria-hidden="true" />
+                            <span>{bullet}</span>
+                        </li>
+                    ))}
+                </ul>
+            </li>
+        ))
+    }
+</ol>

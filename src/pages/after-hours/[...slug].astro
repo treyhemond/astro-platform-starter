@@ -1,0 +1,31 @@
+---
+// Pages for After Hours entries written in Markdown. Entries with an `href` link elsewhere instead,
+// either to a custom page in this folder (like table-tennis.astro) or to an external site.
+import { render } from 'astro:content';
+import ProseLayout from '../../layouts/ProseLayout.astro';
+import { site } from '../../config/site';
+import { getAfterHours, type AfterHoursEntry } from '../../lib/content';
+import { formatDate } from '../../lib/format';
+
+export async function getStaticPaths() {
+    const entries = await getAfterHours();
+    return entries.filter((entry) => !entry.data.href).map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+interface Props {
+    entry: AfterHoursEntry;
+}
+
+const { entry } = Astro.props;
+const { title, description, emoji, date } = entry.data;
+const { Content } = await render(entry);
+---
+
+<ProseLayout title={title} description={description} back={{ href: site.afterHours.href, label: site.afterHours.title }} theme="after-hours" noindex>
+    <Fragment slot="meta">
+        <span class="text-base" aria-hidden="true">{emoji}</span>
+        <time datetime={date.toISOString()}>{formatDate(date)}</time>
+    </Fragment>
+
+    <Content />
+</ProseLayout>

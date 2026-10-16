@@ -1,0 +1,31 @@
+---
+// Layout for the semi-hidden After Hours section: warm theme, hidden from search engines.
+import BaseLayout from './BaseLayout.astro';
+import Icon from '../components/ui/Icon.astro';
+import { site } from '../config/site';
+
+interface Props {
+    title: string;
+    description: string;
+    /** Show a "back to After Hours" link (for individual projects). */
+    back?: boolean;
+    /** Use a wider container for interactive pages. */
+    wide?: boolean;
+}
+
+const { title, description, back = false, wide = false } = Astro.props;
+---
+
+<BaseLayout title={title} description={description} theme="after-hours" noindex>
+    <div class:list={['container-page pt-10 pb-20 sm:pt-16 sm:pb-28', wide ? 'max-w-5xl' : 'max-w-4xl']}>
+        {
+            back && (
+                <a href={site.afterHours.href} class="group mb-8 inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-fg">
+                    <Icon name="arrow-left" class="size-4 transition-transform group-hover:-translate-x-0.5" />
+                    {site.afterHours.title}
+                </a>
+            )
+        }
+        <slot />
+    </div>
+</BaseLayout>

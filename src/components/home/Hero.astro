@@ -1,10 +1,10 @@
 ---
 import Icon from '../ui/Icon.astro';
 import SocialLinks from '../ui/SocialLinks.astro';
-import TerminalCard from './TerminalCard.astro';
+import StatsCard from './StatsCard.astro';
 import { site } from '../../config/site';
 
-const { status, roles, intro } = site.hero;
+const { status, lead, roles, intro } = site.hero;
 ---
 
 <section class="container-page pt-14 pb-12 sm:pt-24 sm:pb-16 lg:pt-28">
@@ -32,9 +32,9 @@ const { status, roles, intro } = site.hero;
             </h1>
 
             <p class="mt-4 text-2xl font-semibold tracking-tight text-subtle sm:text-3xl lg:text-4xl" data-reveal data-reveal-delay="140">
-                <span class="sr-only">I build {roles.join(' ')}</span>
+                <span class="sr-only">{lead} {roles.join(' ')}</span>
                 <span aria-hidden="true">
-                    I build
+                    {lead}
                     <!-- All phrases share one grid cell so the line never jumps as they rotate (src/scripts/main.ts). -->
                     <span data-rotator class="inline-grid align-top">
                         {
@@ -54,17 +54,17 @@ const { status, roles, intro } = site.hero;
             <p class="mt-7 max-w-xl text-lg leading-relaxed text-muted sm:text-xl" data-reveal data-reveal-delay="200">{intro}</p>
 
             <div class="mt-10 flex flex-wrap items-center gap-3 sm:gap-4" data-reveal data-reveal-delay="260">
-                <a href="/projects" class="btn btn-lg">
-                    See my work
+                <a href="/#contact" class="btn btn-lg">
+                    Get in touch
                     <Icon name="arrow-right" class="size-4" />
                 </a>
-                <a href="/blog" class="btn btn-ghost btn-lg">Read the blog</a>
+                <a href="/resume" class="btn btn-ghost btn-lg">View resume</a>
                 <div class="hidden sm:ml-2 sm:block"><SocialLinks /></div>
             </div>
         </div>
 
         <div data-reveal data-reveal-delay="320">
-            <TerminalCard />
+            <StatsCard />
         </div>
     </div>
 </section>

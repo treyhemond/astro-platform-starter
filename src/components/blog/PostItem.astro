@@ -5,9 +5,12 @@ import { formatDate, readingTime } from '../../lib/format';
 
 interface Props {
     post: Post;
+    /** Heading level for the title: 2 when listed directly under a page <h1>, 3 under a section <h2>. */
+    headingLevel?: 2 | 3;
 }
 
-const { post } = Astro.props;
+const { post, headingLevel = 3 } = Astro.props;
+const Heading = `h${headingLevel}` as const;
 const { title, description, pubDate } = post.data;
 ---
 
@@ -16,11 +19,11 @@ const { title, description, pubDate } = post.data;
         <time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
     </p>
     <div>
-        <h3 class="text-lg transition-colors group-hover:text-accent sm:text-xl">
+        <Heading class="text-lg transition-colors group-hover:text-accent sm:text-xl">
             <a href={`/blog/${post.id}`} class="after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:rounded-lg focus-visible:after:outline-2 focus-visible:after:outline-accent">
                 {title}
             </a>
-        </h3>
+        </Heading>
         <p class="mt-2 leading-relaxed text-muted">{description}</p>
     </div>
     <p class="hidden items-center gap-2 font-mono text-xs text-subtle sm:flex">

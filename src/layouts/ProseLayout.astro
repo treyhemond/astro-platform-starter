@@ -1,5 +1,5 @@
 ---
-// Layout for long-form Markdown content: blog posts and project write-ups.
+// Layout for long-form Markdown content: blog posts, case studies and After Hours entries.
 import BaseLayout from './BaseLayout.astro';
 import Icon from '../components/ui/Icon.astro';
 
@@ -7,12 +7,14 @@ interface Props {
     title: string;
     description: string;
     back: { href: string; label: string };
+    theme?: 'default' | 'after-hours';
+    noindex?: boolean;
 }
 
-const { title, description, back } = Astro.props;
+const { title, description, back, theme, noindex } = Astro.props;
 ---
 
-<BaseLayout title={title} description={description} type="article">
+<BaseLayout title={title} description={description} type="article" theme={theme} noindex={noindex}>
     <article class="container-page max-w-3xl pt-10 pb-20 sm:pt-16 sm:pb-28">
         <a href={back.href} class="group inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-fg">
             <Icon name="arrow-left" class="size-4 transition-transform group-hover:-translate-x-0.5" />

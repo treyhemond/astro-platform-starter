@@ -1,0 +1,32 @@
+---
+// Hero "By the numbers" card. Stats come from `resume.stats` in src/data/resume.ts;
+// values with a `count` animate up from zero when they scroll into view (src/scripts/main.ts).
+import Icon from '../ui/Icon.astro';
+import { resume } from '../../data/resume';
+---
+
+<div class="relative">
+    <!-- Glow behind the card -->
+    <div class="absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-to-br from-accent/25 via-transparent to-accent-2/20 blur-2xl" aria-hidden="true"></div>
+
+    <figure class="card overflow-hidden bg-surface/80 shadow-2xl shadow-black/40">
+        <figcaption class="flex items-center justify-between border-b border-line px-6 py-4">
+            <span class="eyebrow">By the numbers</span>
+            <Icon name="trending-up" class="size-4 text-accent-2" />
+        </figcaption>
+        <dl class="grid grid-cols-2">
+            {
+                resume.stats.map((stat, i) => (
+                    <div class:list={['flex flex-col-reverse justify-end p-5 sm:p-7', i % 2 === 0 && 'border-r border-line', i < 2 && 'border-b border-line']}>
+                        <dt class="mt-2 text-sm leading-snug text-muted">{stat.label}</dt>
+                        <dd class="text-gradient text-4xl font-semibold tracking-tight tabular-nums sm:text-5xl">
+                            <span data-count={stat.count} data-prefix={stat.prefix} data-suffix={stat.suffix}>
+                                {stat.value}
+                            </span>
+                        </dd>
+                    </div>
+                ))
+            }
+        </dl>
+    </figure>
+</div>
