@@ -3,6 +3,7 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 
 export type Work = CollectionEntry<'work'>;
 export type Post = CollectionEntry<'blog'>;
+export type AfterHoursEntry = CollectionEntry<'afterHours'>;
 
 const isPublished = ({ data }: { data: { draft?: boolean } }) => import.meta.env.DEV || !data.draft;
 
@@ -13,6 +14,11 @@ export async function getWork() {
 
 export async function getFeaturedWork(limit = 4) {
     return (await getWork()).filter((w) => w.data.featured).slice(0, limit);
+}
+
+export async function getAfterHours() {
+    const entries = await getCollection('afterHours', isPublished);
+    return entries.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 }
 
 export async function getPosts() {

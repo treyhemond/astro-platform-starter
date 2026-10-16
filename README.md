@@ -2,6 +2,11 @@
 
 My professional site: a dark-themed [Astro](https://astro.build) site styled with [Tailwind CSS](https://tailwindcss.com) and deployed on [Netlify](https://www.netlify.com). It's fully static (no server functions) and a **work in progress** (v0.2).
 
+It has two sides:
+
+- **The professional site:** home, work, resume and blog.
+- **After Hours** (`/after-hours`): a semi-hidden corner for fun projects to share with friends. It isn't in the menu, the sitemap or search results, and the only way in is a faint moon icon in the footer (or a link you send someone). It's **hidden, not private**: anyone with the link can open it.
+
 ## Quick start
 
 | Command         | Action                                   |
@@ -27,6 +32,8 @@ Netlify deploys every build of `main` to production. The free plan allows about 
 | Change the hero, bio, contact copy or nav | `src/config/site.ts`                                                                    |
 | Add a case study                         | Copy `src/content/work/_template.md` to a new file and fill it in                        |
 | Write a blog post                        | Copy `src/content/blog/_template.md` to a new file and fill it in                        |
+| Add something to After Hours             | Copy `src/content/after-hours/_template.md`. For an interactive page, also add a `.astro` page in `src/pages/after-hours/` (see `table-tennis.astro`) |
+| Add a headshot                           | Save it as `src/assets/headshot.jpg` (or `.png`/`.webp`). It shows up in About, optimized automatically |
 | Re-theme colors or fonts                 | The `@theme` block at the top of `src/styles/globals.css`                                |
 | Add, remove or reorder homepage sections | `src/pages/index.astro` (each section is a component in `src/components/home/`)          |
 | Add a page                               | Create `src/pages/<name>.astro` using `BaseLayout`, then add it to `nav` in the config   |
@@ -38,6 +45,7 @@ Content notes:
 - `draft: true` shows an entry in `npm run dev` but leaves it out of production builds.
 - Files starting with `_` are ignored, so the templates never appear on the site.
 - Case studies with `featured: true` show on the home page (up to four).
+- After Hours cards link to the entry's own page by default, or to `href` if set (a custom page or an external link like a playlist or photo album).
 - The social preview image (`public/og-image.png`, 1200×630) is a static file. Regenerate it if your headline or numbers change.
 
 ## Project structure
@@ -49,20 +57,26 @@ src/
 ├── content.config.ts     # Schemas for the work and blog collections
 ├── content/
 │   ├── work/*.md         # One file per case study
-│   └── blog/*.md         # One file per post
+│   ├── blog/*.md         # One file per post
+│   └── after-hours/*.md  # One file per fun project (semi-hidden section)
+├── assets/               # Optional headshot.jpg (picked up automatically)
 ├── components/
 │   ├── layout/           # BaseHead (SEO/meta), Header, Footer, Logo
 │   ├── ui/               # Reusable pieces: Section, PageHeader, Timeline, Icon, CopyButton…
 │   ├── home/             # Home page sections: Hero, StatsCard, PressStrip, About, Experience…
-│   └── work/ blog/       # Cards and list items for content
+│   └── work/ blog/ after-hours/  # Cards and list items for content
 ├── layouts/
 │   ├── BaseLayout.astro  # HTML shell used by every page
-│   └── ProseLayout.astro # Long-form pages (posts, case studies)
+│   ├── ProseLayout.astro # Long-form pages (posts, case studies)
+│   └── AfterHoursLayout.astro # Warm theme + noindex for /after-hours
 ├── lib/                  # Content queries, formatting, icons, structured data
 ├── scripts/main.ts       # Progressive enhancements (reveal, count-up, copy, print, mobile menu)
 ├── styles/globals.css    # Design tokens, component classes and print styles
-└── pages/                # Routes: /, /work, /resume, /blog, 404
+└── pages/                # Routes: /, /work, /resume, /blog, /after-hours, 404, robots.txt
+netlify.toml              # Build settings, Node version, caching and security headers
 ```
+
+A sitemap (`/sitemap-index.xml`) is generated on every build. It covers the professional pages only.
 
 ## Design system
 
@@ -76,11 +90,13 @@ src/
 
   Motion respects `prefers-reduced-motion`.
 - **Printing:** `/resume` prints (or saves as PDF) as a one-page, black-on-white document.
+- **Themes:** `BaseLayout` takes a `theme` prop. `after-hours` swaps the accents to a warm sunset palette (see the `[data-theme]` block in `globals.css`).
 
 ## Roadmap ideas
 
-- [ ] Headshot photo in the hero or About section
+- [ ] Add a headshot (`src/assets/headshot.jpg`)
+- [ ] More After Hours projects: trip recaps, playlists, game-night tools
 - [ ] Links to the press coverage in the case studies (`links` in the front matter)
 - [ ] More blog posts, then add the `LatestPosts` section back to the home page
-- [ ] RSS feed (`@astrojs/rss`) and sitemap (`@astrojs/sitemap`)
+- [ ] RSS feed for the blog (`@astrojs/rss`)
 - [ ] Custom domain in Netlify

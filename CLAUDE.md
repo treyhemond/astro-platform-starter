@@ -25,10 +25,17 @@ The site is on Netlify's free plan: 300 credits a month, hard capped. Each produ
 - **Privacy:** the owner chose to publish email, LinkedIn and city only. No phone number, and no caregiving or family-health details (the Feb 2024–present career break is intentionally omitted).
 - **Case studies (`work`) and posts (`blog`) are content collections** (`src/content.config.ts`). Add Markdown files rather than new pages. Files prefixed with `_` are templates and are ignored. Query them through `src/lib/content.ts` so draft filtering and sorting stay consistent.
 - **Styling:** use the design tokens from `@theme` in `src/styles/globals.css` (`bg-canvas`, `bg-surface`, `text-fg`, `text-muted`, `text-subtle`, `border-line`, `text-accent`, `accent-2`) instead of raw colors. Reuse the component classes (`.container-page`, `.card`, `.btn`, `.btn-ghost`, `.eyebrow`, `.tag`, `.link`, `.prose`).
-- **Layouts:** pages use `BaseLayout` (title and description props feed `BaseHead` for SEO), and `ProseLayout` for Markdown entries.
+- **Layouts:** pages use `BaseLayout` (title and description props feed `BaseHead` for SEO), `ProseLayout` for Markdown entries, and `AfterHoursLayout` for `/after-hours/*`.
+- **After Hours** (`/after-hours`) is the owner's semi-hidden section for fun projects to share with friends:
+  - Keep it out of the nav, home page, sitemap (filtered in `astro.config.mjs`) and search engines (noindex meta from the layout plus an `X-Robots-Tag` header in `netlify.toml`). Its only entry point is the faint moon link in the footer.
+  - Don't add a robots.txt `Disallow` for it, since that would advertise it.
+  - It is hidden, not private: never put sensitive information there.
+  - Entries live in `src/content/after-hours/`. Interactive projects get their own `.astro` page in `src/pages/after-hours/`, and their entry's `href` points to that page.
 - **Home page:** sections are standalone components in `src/components/home/`, composed in `src/pages/index.astro`. Wrap section content in `Section` for consistent spacing and headings.
 - **JS:** keep it progressive and dependency-free in `src/scripts/main.ts`, opting in with data attributes (`data-reveal`, `data-spotlight`, `data-rotator`, `data-count`, `data-copy`, `data-print`). Pages must work without JS.
 - **Icons:** `<Icon name="..." />` reads from `src/lib/icons.ts` (Lucide-style 24×24 stroke paths).
+- **Infrastructure:** `netlify.toml` holds the build command, Node version and headers; it overrides the Netlify UI. `/robots.txt` and the sitemap are generated at build time from `site` (Netlify's `URL`).
+- **Headshot:** `src/lib/headshot.ts` picks up `src/assets/headshot.{jpg,png,webp,…}` if present. Don't commit a placeholder.
 - **Rendering:** every page is static. Keep it that way unless the owner asks: server functions use Netlify credits. If one is ever needed, add the adapter with `npx astro add netlify`.
 - **Print:** `/resume` must stay a single printed page. Check it with a print-to-PDF render after changing résumé data or styles.
 - **Formatting:** 4-space indent, single quotes, print width 160 (see `.prettierrc`).

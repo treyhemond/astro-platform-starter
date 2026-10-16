@@ -78,6 +78,17 @@ export const site = {
         { label: 'Email', href: `mailto:${email}`, icon: 'mail' }
     ] satisfies SocialLink[],
 
+    /**
+     * The semi-hidden "After Hours" section for fun projects (src/pages/after-hours/).
+     * It's left out of the nav, sitemap and search engines, and reached via a small moon icon in the footer.
+     * Hidden is not private: anyone with the link can open it.
+     */
+    afterHours: {
+        title: 'After Hours',
+        href: '/after-hours',
+        intro: "You found the back room. This corner of the site isn't in the menu: it's for fun stuff, side projects and things I want to share with friends. If you're here, someone probably sent you."
+    },
+
     /** Repository for this site — linked from the footer. Set to '' to hide. */
     sourceUrl: 'https://github.com/treyhemond/astro-platform-starter'
 };

@@ -28,6 +28,26 @@ const work = defineCollection({
     })
 });
 
+/** Fun projects for the semi-hidden /after-hours section. */
+const afterHours = defineCollection({
+    loader: glob({ pattern: '**/[^_]*.md', base: './src/content/after-hours' }),
+    schema: z.object({
+        title: z.string(),
+        description: z.string(),
+        /** Shown big on the card. */
+        emoji: z.string().default('✨'),
+        /** Used for sorting (newest first). */
+        date: z.coerce.date(),
+        /**
+         * Where the card links. Leave empty to give the entry its own page from the Markdown body.
+         * Set it to a custom page (e.g. /after-hours/table-tennis) or an external URL (a playlist, a photo album…).
+         */
+        href: z.string().optional(),
+        tags: z.array(z.string()).default([]),
+        draft: z.boolean().default(false)
+    })
+});
+
 const blog = defineCollection({
     loader: glob({ pattern: '**/[^_]*.md', base: './src/content/blog' }),
     schema: z.object({
@@ -40,4 +60,4 @@ const blog = defineCollection({
     })
 });
 
-export const collections = { work, blog };
+export const collections = { work, blog, afterHours };

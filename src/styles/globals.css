@@ -54,6 +54,13 @@
     }
 }
 
+/* Alternate palette for the After Hours section: warm sunset accents instead of violet/cyan. */
+[data-theme='after-hours'] {
+    --color-accent: #f9a8d4;
+    --color-accent-2: #fcd34d;
+    --color-accent-content: #1a0f0a;
+}
+
 @layer base {
     html {
         color-scheme: dark;

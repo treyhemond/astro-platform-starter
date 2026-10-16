@@ -1,8 +1,10 @@
 ---
+import { Image } from 'astro:assets';
 import Section from '../ui/Section.astro';
 import Icon from '../ui/Icon.astro';
 import { site } from '../../config/site';
 import { resume } from '../../data/resume';
+import { headshot } from '../../lib/headshot';
 
 const facts = [
     { icon: 'map-pin' as const, text: `Based in ${resume.location.city}, ${resume.location.region}` },
@@ -14,6 +16,17 @@ const facts = [
 <Section id="about" eyebrow="About" title={site.about.title}>
     <div class="grid gap-12 lg:grid-cols-[1fr_1.35fr] lg:gap-16">
         <div data-reveal>
+            {
+                headshot && (
+                    <Image
+                        src={headshot}
+                        alt={`Portrait of ${site.name}`}
+                        width={320}
+                        loading="lazy"
+                        class="mb-8 size-28 rounded-2xl border border-line object-cover shadow-lg shadow-black/30 sm:size-32"
+                    />
+                )
+            }
             <div class="space-y-5 text-lg leading-relaxed text-muted">
                 {site.about.bio.map((paragraph) => <p>{paragraph}</p>)}
             </div>

@@ -1,0 +1,45 @@
+---
+import Icon from '../ui/Icon.astro';
+import type { AfterHoursEntry } from '../../lib/content';
+import { isExternal } from '../../lib/format';
+
+interface Props {
+    entry: AfterHoursEntry;
+    class?: string;
+}
+
+const { entry, class: className } = Astro.props;
+const { title, description, emoji, tags, href: customHref } = entry.data;
+const href = customHref ?? `/after-hours/${entry.id}`;
+const external = isExternal(href);
+---
+
+<article data-spotlight class:list={['card card-hover group flex flex-col p-6 sm:p-7', className]}>
+    <div class="mb-5 flex items-start justify-between gap-4">
+        <span class="text-4xl leading-none" aria-hidden="true">{emoji}</span>
+        <Icon
+            name={external ? 'arrow-up-right' : 'arrow-right'}
+            class="size-5 text-subtle transition duration-300 group-hover:translate-x-0.5 group-hover:text-accent"
+        />
+    </div>
+    <h2 class="text-xl">
+        <a
+            href={href}
+            target={external ? '_blank' : undefined}
+            rel={external ? 'noopener noreferrer' : undefined}
+            class="after:absolute after:inset-0 after:rounded-2xl focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-accent"
+        >
+            {title}
+        </a>
+    </h2>
+    <p class="mt-2 flex-1 leading-relaxed text-muted">{description}</p>
+    {
+        tags.length > 0 && (
+            <ul class="mt-5 flex flex-wrap gap-1.5">
+                {tags.map((tag) => (
+                    <li class="tag">{tag}</li>
+                ))}
+            </ul>
+        )
+    }
+</article>
