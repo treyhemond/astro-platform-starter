@@ -1,0 +1,27 @@
+---
+import Icon from './Icon.astro';
+import { site } from '../../config/site';
+
+interface Props {
+    class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<ul class:list={['flex items-center gap-2', className]}>
+    {
+        site.socials.map((social) => (
+            <li>
+                <a
+                    href={social.href}
+                    target="_blank"
+                    rel="me noopener noreferrer"
+                    class="grid size-10 place-items-center rounded-full border border-line bg-white/[0.02] text-muted transition hover:border-line-strong hover:text-fg"
+                >
+                    <Icon name={social.icon} label={social.label} class="size-[1.15rem]" />
+                </a>
+            </li>
+        ))
+    }
+</ul>

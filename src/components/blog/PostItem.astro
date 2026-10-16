@@ -1,0 +1,30 @@
+---
+import Icon from '../ui/Icon.astro';
+import type { Post } from '../../lib/content';
+import { formatDate, readingTime } from '../../lib/format';
+
+interface Props {
+    post: Post;
+}
+
+const { post } = Astro.props;
+const { title, description, pubDate } = post.data;
+---
+
+<article class="group relative grid gap-2 py-7 sm:grid-cols-[10rem_1fr_auto] sm:items-baseline sm:gap-8">
+    <p class="font-mono text-xs text-subtle">
+        <time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
+    </p>
+    <div>
+        <h3 class="text-lg transition-colors group-hover:text-accent sm:text-xl">
+            <a href={`/blog/${post.id}`} class="after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:rounded-lg focus-visible:after:outline-2 focus-visible:after:outline-accent">
+                {title}
+            </a>
+        </h3>
+        <p class="mt-2 leading-relaxed text-muted">{description}</p>
+    </div>
+    <p class="hidden items-center gap-2 font-mono text-xs text-subtle sm:flex">
+        {readingTime(post.body)}
+        <Icon name="arrow-right" class="size-4 transition-transform group-hover:translate-x-1 group-hover:text-accent" />
+    </p>
+</article>

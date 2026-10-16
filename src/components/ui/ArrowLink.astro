@@ -1,0 +1,23 @@
+---
+// Text link with a trailing arrow that nudges on hover — used for "View all →" style links.
+import Icon from './Icon.astro';
+import { isExternal } from '../../lib/format';
+
+interface Props {
+    href: string;
+    class?: string;
+}
+
+const { href, class: className } = Astro.props;
+const external = isExternal(href);
+---
+
+<a
+    href={href}
+    class:list={['group inline-flex items-center gap-1.5 text-sm font-medium text-fg transition-colors hover:text-accent', className]}
+    target={external ? '_blank' : undefined}
+    rel={external ? 'noopener noreferrer' : undefined}
+>
+    <slot />
+    <Icon name={external ? 'arrow-up-right' : 'arrow-right'} class="size-4 transition-transform group-hover:translate-x-0.5" />
+</a>

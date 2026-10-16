@@ -1,0 +1,23 @@
+---
+// Title block for top-level pages (Projects, Blog, Lab, …).
+interface Props {
+    eyebrow?: string;
+    title: string;
+    description?: string;
+}
+
+const { eyebrow, title, description } = Astro.props;
+---
+
+<header class="container-page pt-16 pb-12 sm:pt-24 sm:pb-16">
+    {eyebrow && <p class="eyebrow mb-5" data-reveal>{eyebrow}</p>}
+    <h1 class="max-w-3xl text-4xl tracking-tighter sm:text-6xl" data-reveal data-reveal-delay="60">{title}</h1>
+    {
+        description && (
+            <p class="mt-6 max-w-2xl text-lg leading-relaxed text-muted sm:text-xl" data-reveal data-reveal-delay="120">
+                {description}
+            </p>
+        )
+    }
+    <slot />
+</header>

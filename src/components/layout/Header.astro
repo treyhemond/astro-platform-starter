@@ -1,0 +1,69 @@
+---
+import Logo from './Logo.astro';
+import Icon from '../ui/Icon.astro';
+import { site } from '../../config/site';
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isActive = (href: string) => !href.includes('#') && href !== '/' && (path === href || path.startsWith(`${href}/`));
+---
+
+<header data-header class="group/header sticky top-0 z-50 border-b border-transparent transition-colors duration-300 data-[scrolled]:border-line data-[scrolled]:bg-canvas/75 data-[scrolled]:backdrop-blur-xl">
+    <nav class="container-page flex h-16 items-center justify-between gap-6" aria-label="Main">
+        <a href="/" class="rounded-xl" aria-label={`${site.name} — home`}>
+            <Logo />
+        </a>
+
+        <!-- Desktop navigation -->
+        <ul class="hidden items-center gap-1 md:flex">
+            {
+                site.nav.map((item) => (
+                    <li>
+                        <a
+                            href={item.href}
+                            aria-current={isActive(item.href) ? 'page' : undefined}
+                            class="rounded-full px-3.5 py-2 text-sm text-muted transition-colors hover:text-fg aria-[current=page]:bg-white/[0.06] aria-[current=page]:text-fg"
+                        >
+                            {item.label}
+                        </a>
+                    </li>
+                ))
+            }
+        </ul>
+        <a href="/#contact" class="btn hidden px-4 py-2 md:inline-flex">Say hello</a>
+
+        <!-- Mobile menu toggle (src/scripts/main.ts) -->
+        <button
+            type="button"
+            data-menu-toggle
+            aria-expanded="false"
+            aria-controls="mobile-menu"
+            class="group/toggle -mr-2 grid size-10 place-items-center rounded-full text-fg md:hidden"
+        >
+            <span class="sr-only">Toggle menu</span>
+            <Icon name="menu" class="size-5 group-aria-expanded/toggle:hidden" />
+            <Icon name="x" class="hidden size-5 group-aria-expanded/toggle:block" />
+        </button>
+    </nav>
+
+    <div id="mobile-menu" data-menu hidden class="border-t border-line bg-canvas/95 backdrop-blur-xl md:hidden">
+        <ul class="container-page flex flex-col py-4">
+            {
+                site.nav.map((item) => (
+                    <li>
+                        <a
+                            href={item.href}
+                            aria-current={isActive(item.href) ? 'page' : undefined}
+                            class="flex items-center justify-between border-b border-line py-3.5 text-lg text-fg/90 aria-[current=page]:text-accent"
+                        >
+                            {item.label}
+                            <Icon name="arrow-right" class="size-4 text-subtle" />
+                        </a>
+                    </li>
+                ))
+            }
+            <li class="pt-5">
+                <a href="/#contact" class="btn w-full">Say hello</a>
+            </li>
+        </ul>
+    </div>
+</header>

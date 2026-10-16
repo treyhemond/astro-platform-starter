@@ -1,0 +1,30 @@
+---
+import { render } from 'astro:content';
+import ProseLayout from '../../layouts/ProseLayout.astro';
+import { getPosts, type Post } from '../../lib/content';
+import { formatDate, readingTime } from '../../lib/format';
+
+export async function getStaticPaths() {
+    const posts = await getPosts();
+    return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+interface Props {
+    post: Post;
+}
+
+const { post } = Astro.props;
+const { title, description, pubDate, updatedDate, tags } = post.data;
+const { Content } = await render(post);
+---
+
+<ProseLayout title={title} description={description} back={{ href: '/blog', label: 'All posts' }}>
+    <Fragment slot="meta">
+        <time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
+        <span>{readingTime(post.body)}</span>
+        {updatedDate && <span>Updated {formatDate(updatedDate)}</span>}
+        {tags.length > 0 && <span>{tags.map((tag) => `#${tag}`).join(' ')}</span>}
+    </Fragment>
+
+    <Content />
+</ProseLayout>

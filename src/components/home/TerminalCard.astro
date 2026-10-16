@@ -1,0 +1,43 @@
+---
+// Decorative terminal window for the hero. Lines come from `site.hero.now` in src/config/site.ts.
+import { site } from '../../config/site';
+
+const handle = site.name.toLowerCase().replace(/\s+/g, '');
+const prompt = '~';
+const lineDelay = (i: number) => `animation-delay: ${700 + i * 260}ms`;
+---
+
+<div class="relative">
+    <!-- Glow behind the card -->
+    <div class="absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-to-br from-accent/25 via-transparent to-accent-2/20 blur-2xl" aria-hidden="true"></div>
+
+    <figure class="card overflow-hidden bg-surface/80 shadow-2xl shadow-black/40" aria-label="What I'm up to right now">
+        <div class="flex items-center gap-2 border-b border-line bg-white/[0.02] px-4 py-3">
+            <span class="size-3 rounded-full bg-[#ff5f57]/80"></span>
+            <span class="size-3 rounded-full bg-[#febc2e]/80"></span>
+            <span class="size-3 rounded-full bg-[#28c840]/80"></span>
+            <span class="ml-3 font-mono text-xs text-subtle">{handle} — zsh</span>
+        </div>
+
+        <div class="space-y-1 p-5 font-mono text-[0.8rem] leading-7 sm:p-6 sm:text-sm">
+            <p><span class="text-accent-2">{prompt}</span> <span class="text-subtle">$</span> whoami</p>
+            <p class="animate-fade-in text-fg" style={lineDelay(0)}>{site.name}</p>
+
+            <p class="animate-fade-in pt-3" style={lineDelay(1)}>
+                <span class="text-accent-2">{prompt}</span> <span class="text-subtle">$</span> cat now.txt
+            </p>
+            {
+                site.hero.now.map((line, i) => (
+                    <p class="animate-fade-in text-muted" style={lineDelay(i + 2)}>
+                        <span class="text-accent">→</span> {line}
+                    </p>
+                ))
+            }
+
+            <p class="animate-fade-in pt-3" style={lineDelay(site.hero.now.length + 2)}>
+                <span class="text-accent-2">{prompt}</span> <span class="text-subtle">$</span>
+                <span class="animate-blink ml-1 inline-block h-4 w-2 translate-y-0.5 bg-accent"></span>
+            </p>
+        </div>
+    </figure>
+</div>

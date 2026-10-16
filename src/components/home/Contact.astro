@@ -1,0 +1,35 @@
+---
+import Icon from '../ui/Icon.astro';
+import SocialLinks from '../ui/SocialLinks.astro';
+import { site } from '../../config/site';
+
+const { title, body, email } = site.contact;
+const fallback = site.socials[0];
+const primary = email
+    ? { href: `mailto:${email}`, label: 'Email me', icon: 'mail' as const, external: false }
+    : { href: fallback.href, label: `Find me on ${fallback.label}`, icon: fallback.icon, external: true };
+---
+
+<section id="contact" class="container-page py-16 sm:py-24">
+    <div class="relative isolate overflow-hidden rounded-3xl border border-line bg-surface px-6 py-16 text-center sm:px-14 sm:py-20" data-reveal>
+        <!-- Decorative glows -->
+        <div
+            class="absolute -top-40 left-1/2 -z-10 size-[36rem] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--color-accent)_28%,transparent),transparent)]"
+            aria-hidden="true"
+        >
+        </div>
+        <div class="bg-grid absolute inset-0 -z-10 opacity-60" aria-hidden="true"></div>
+
+        <p class="eyebrow">Contact</p>
+        <h2 class="mt-5 text-4xl sm:text-5xl">{title}</h2>
+        <p class="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-muted">{body}</p>
+
+        <div class="mt-10 flex flex-col items-center gap-6">
+            <a href={primary.href} class="btn btn-lg" target={primary.external ? '_blank' : undefined} rel={primary.external ? 'noopener noreferrer' : undefined}>
+                <Icon name={primary.icon} class="size-[1.15rem]" />
+                {primary.label}
+            </a>
+            {site.socials.length > 1 && <SocialLinks />}
+        </div>
+    </div>
+</section>

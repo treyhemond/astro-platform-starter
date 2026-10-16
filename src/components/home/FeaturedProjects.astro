@@ -1,0 +1,37 @@
+---
+import Section from '../ui/Section.astro';
+import ArrowLink from '../ui/ArrowLink.astro';
+import Icon from '../ui/Icon.astro';
+import ProjectCard from '../projects/ProjectCard.astro';
+import { getFeaturedProjects } from '../../lib/content';
+
+const projects = await getFeaturedProjects(3);
+---
+
+<Section id="projects" eyebrow="Projects" title="Things I've been building" description="A few highlights. Some are polished, some are experiments — all of them taught me something.">
+    <ArrowLink slot="action" href="/projects">All projects</ArrowLink>
+
+    <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {
+            projects.map((project, i) => (
+                <div data-reveal data-reveal-delay={String(i * 100)}>
+                    <ProjectCard project={project} class="h-full" />
+                </div>
+            ))
+        }
+        {
+            /* Fill the row with a placeholder while there are fewer than three featured projects. */
+            projects.length < 3 && (
+                <div data-reveal data-reveal-delay={String(projects.length * 100)}>
+                    <div class="flex h-full min-h-56 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-line-strong p-7 text-center">
+                        <span class="grid size-11 place-items-center rounded-full border border-line text-subtle">
+                            <Icon name="zap" />
+                        </span>
+                        <p class="font-medium text-fg">More on the way</p>
+                        <p class="max-w-56 text-sm text-muted">New projects land here as they ship.</p>
+                    </div>
+                </div>
+            )
+        }
+    </div>
+</Section>

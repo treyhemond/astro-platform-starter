@@ -1,0 +1,57 @@
+---
+import { render } from 'astro:content';
+import ProseLayout from '../../layouts/ProseLayout.astro';
+import StatusBadge from '../../components/ui/StatusBadge.astro';
+import Icon from '../../components/ui/Icon.astro';
+import { getProjects, type Project } from '../../lib/content';
+import { formatDate, isExternal } from '../../lib/format';
+
+export async function getStaticPaths() {
+    const projects = await getProjects();
+    return projects.map((project) => ({ params: { slug: project.id }, props: { project } }));
+}
+
+interface Props {
+    project: Project;
+}
+
+const { project } = Astro.props;
+const { title, description, status, tags, date, links } = project.data;
+const { Content } = await render(project);
+---
+
+<ProseLayout title={title} description={description} back={{ href: '/projects', label: 'All projects' }}>
+    <Fragment slot="meta">
+        <StatusBadge status={status} class="font-sans" />
+        <time datetime={date.toISOString()}>{formatDate(date)}</time>
+        {tags.length > 0 && <span>{tags.join(' · ')}</span>}
+    </Fragment>
+
+    <Fragment slot="header">
+        {
+            (links.live || links.repo) && (
+                <div class="mt-8 flex flex-wrap gap-3">
+                    {links.live && (
+                        <a
+                            href={links.live}
+                            class="btn"
+                            target={isExternal(links.live) ? '_blank' : undefined}
+                            rel={isExternal(links.live) ? 'noopener noreferrer' : undefined}
+                        >
+                            View project
+                            <Icon name={isExternal(links.live) ? 'arrow-up-right' : 'arrow-right'} class="size-4" />
+                        </a>
+                    )}
+                    {links.repo && (
+                        <a href={links.repo} class="btn btn-ghost" target="_blank" rel="noopener noreferrer">
+                            <Icon name="github" class="size-4" />
+                            Source
+                        </a>
+                    )}
+                </div>
+            )
+        }
+    </Fragment>
+
+    <Content />
+</ProseLayout>

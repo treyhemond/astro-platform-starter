@@ -1,0 +1,70 @@
+---
+import Icon from '../ui/Icon.astro';
+import SocialLinks from '../ui/SocialLinks.astro';
+import TerminalCard from './TerminalCard.astro';
+import { site } from '../../config/site';
+
+const { status, roles, intro } = site.hero;
+---
+
+<section class="container-page pt-14 pb-12 sm:pt-24 sm:pb-16 lg:pt-28">
+    <div class="grid items-center gap-14 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
+        <div>
+            {
+                status && (
+                    <a
+                        href={status.href}
+                        class="group inline-flex items-center gap-2.5 rounded-full border border-line bg-white/[0.03] py-1.5 pr-3 pl-3 text-xs text-muted backdrop-blur transition hover:border-line-strong hover:text-fg sm:text-sm"
+                        data-reveal
+                    >
+                        <span class="relative flex size-2">
+                            <span class="animate-ping-slow absolute inline-flex size-full rounded-full bg-emerald-400 opacity-75" />
+                            <span class="relative inline-flex size-2 rounded-full bg-emerald-400" />
+                        </span>
+                        {status.label}
+                        <Icon name="arrow-right" class="size-3.5 transition-transform group-hover:translate-x-0.5" />
+                    </a>
+                )
+            }
+
+            <h1 class="mt-7 text-5xl leading-[1.04] tracking-tighter sm:text-6xl lg:text-7xl" data-reveal data-reveal-delay="80">
+                Hi, I'm <span class="text-gradient">{site.shortName}</span>.
+            </h1>
+
+            <p class="mt-4 text-2xl font-semibold tracking-tight text-subtle sm:text-3xl lg:text-4xl" data-reveal data-reveal-delay="140">
+                <span class="sr-only">I build {roles.join(' ')}</span>
+                <span aria-hidden="true">
+                    I build
+                    <!-- All phrases share one grid cell so the line never jumps as they rotate (src/scripts/main.ts). -->
+                    <span data-rotator class="inline-grid align-top">
+                        {
+                            roles.map((role, i) => (
+                                <span
+                                    data-active={i === 0 ? '' : undefined}
+                                    class="col-start-1 row-start-1 translate-y-3 text-fg opacity-0 blur-sm transition duration-500 data-active:translate-y-0 data-active:opacity-100 data-active:blur-none"
+                                >
+                                    {role}
+                                </span>
+                            ))
+                        }
+                    </span>
+                </span>
+            </p>
+
+            <p class="mt-7 max-w-xl text-lg leading-relaxed text-muted sm:text-xl" data-reveal data-reveal-delay="200">{intro}</p>
+
+            <div class="mt-10 flex flex-wrap items-center gap-3 sm:gap-4" data-reveal data-reveal-delay="260">
+                <a href="/projects" class="btn btn-lg">
+                    See my work
+                    <Icon name="arrow-right" class="size-4" />
+                </a>
+                <a href="/blog" class="btn btn-ghost btn-lg">Read the blog</a>
+                <div class="hidden sm:ml-2 sm:block"><SocialLinks /></div>
+            </div>
+        </div>
+
+        <div data-reveal data-reveal-delay="320">
+            <TerminalCard />
+        </div>
+    </div>
+</section>

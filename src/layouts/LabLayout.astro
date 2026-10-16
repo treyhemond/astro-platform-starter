@@ -1,0 +1,22 @@
+---
+// Wrapper for the Netlify platform demos under /lab.
+import BaseLayout from './BaseLayout.astro';
+import Icon from '../components/ui/Icon.astro';
+
+interface Props {
+    title: string;
+    description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<BaseLayout title={`${title} · Lab`} description={description}>
+    <div class="container-page max-w-5xl pt-10 pb-20 sm:pt-16 sm:pb-28">
+        <a href="/lab" class="group mb-10 inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-fg">
+            <Icon name="arrow-left" class="size-4 transition-transform group-hover:-translate-x-0.5" />
+            Back to the Lab
+        </a>
+        <slot />
+    </div>
+</BaseLayout>

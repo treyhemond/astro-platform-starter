@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/ui/PageHeader.astro';
+import PostItem from '../../components/blog/PostItem.astro';
+import { getPosts } from '../../lib/content';
+
+const posts = await getPosts();
+const description = 'Notes, how-tos, and lessons learned while building things.';
+---
+
+<BaseLayout title="Blog" description={description}>
+    <PageHeader eyebrow="Blog" title="Notes & writing" description={description} />
+    <section class="container-page pb-24 sm:pb-32">
+        {
+            posts.length > 0 ? (
+                <div class="divide-y divide-line border-y border-line" data-reveal>
+                    {posts.map((post) => (
+                        <PostItem post={post} />
+                    ))}
+                </div>
+            ) : (
+                <p class="text-muted">First post coming soon.</p>
+            )
+        }
+    </section>
+</BaseLayout>

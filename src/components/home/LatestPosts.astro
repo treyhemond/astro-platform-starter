@@ -1,0 +1,26 @@
+---
+import Section from '../ui/Section.astro';
+import ArrowLink from '../ui/ArrowLink.astro';
+import PostItem from '../blog/PostItem.astro';
+import { getPosts } from '../../lib/content';
+
+const posts = (await getPosts()).slice(0, 3);
+---
+
+<Section id="blog" eyebrow="Blog" title="Notes & writing" description="Thoughts, how-tos, and lessons learned along the way.">
+    <ArrowLink slot="action" href="/blog">All posts</ArrowLink>
+
+    {
+        posts.length > 0 ? (
+            <div class="divide-y divide-line border-y border-line" data-reveal>
+                {posts.map((post) => (
+                    <PostItem post={post} />
+                ))}
+            </div>
+        ) : (
+            <p class="text-muted" data-reveal>
+                First post coming soon.
+            </p>
+        )
+    }
+</Section>
