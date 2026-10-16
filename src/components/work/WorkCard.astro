@@ -4,10 +4,13 @@ import type { Work } from '../../lib/content';
 
 interface Props {
     work: Work;
+    /** Heading level for the title: 2 when the card sits directly under a page <h1>, 3 under a section <h2>. */
+    headingLevel?: 2 | 3;
     class?: string;
 }
 
-const { work, class: className } = Astro.props;
+const { work, headingLevel = 3, class: className } = Astro.props;
+const Heading = `h${headingLevel}` as const;
 const { title, description, category, role, org, metrics } = work.data;
 ---
 
@@ -16,12 +19,12 @@ const { title, description, category, role, org, metrics } = work.data;
         <span class="eyebrow">{category}</span>
         <Icon name="arrow-up-right" class="size-5 text-subtle transition duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />
     </div>
-    <h3 class="text-xl sm:text-2xl">
+    <Heading class="text-xl sm:text-2xl">
         <!-- The ::after stretches the link over the whole card, so the entire card is clickable. -->
         <a href={`/work/${work.id}`} class="after:absolute after:inset-0 after:rounded-2xl focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-accent">
             {title}
         </a>
-    </h3>
+    </Heading>
     <p class="mt-2 text-sm text-subtle">{role} · {org}</p>
     <p class="mt-4 flex-1 leading-relaxed text-muted">{description}</p>
     {

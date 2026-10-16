@@ -2,7 +2,6 @@
 title: Welcome to my corner of the web
 description: What this site is for, what you'll find here, and the kind of work I'm looking for next.
 pubDate: 2026-10-16
-updatedDate: 2026-10-17
 tags: [meta]
 ---
 

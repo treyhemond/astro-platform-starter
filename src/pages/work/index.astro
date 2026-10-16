@@ -16,7 +16,7 @@ const description = 'Case studies from sales, public relations, campaigns and st
                 <div class="grid gap-5 md:grid-cols-2">
                     {work.map((item, i) => (
                         <div data-reveal data-reveal-delay={String((i % 2) * 100)}>
-                            <WorkCard work={item} class="h-full" />
+                            <WorkCard work={item} headingLevel={2} class="h-full" />
                         </div>
                     ))}
                 </div>
