@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Firefly Pond</title>
+    <meta name="claude:viewport-fit-sides" content="cover">
+    <meta name="theme-color" content="#000000">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Jost:wght@300;400&display=swap">
+    <style>
+      /* Layout: one full-bleed night canvas; a title that fades away, a breath cue low on the water, and a quiet control row that hides itself. */
+      :root {
+        --night: #000000;
+        --ember: #f2b45a;     /* firefly light, kept warm to stay low on blue */
+        --glow: #ffd99a;      /* brightest text */
+        --dusk: #8c7458;      /* secondary text */
+        --line: rgba(242, 180, 90, 0.18);
+        --line-on: rgba(242, 180, 90, 0.5);
+        --display: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+        --label: 'Jost', 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
+        color-scheme: dark;
+      }
+      [hidden] { display: none !important; }
+      html, body { height: 100%; }
+      body {
+        background: var(--night);
+        color: var(--dusk);
+        overflow: hidden;
+        overscroll-behavior: none;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        font-family: var(--label);
+        padding-left: max(16px, env(safe-area-inset-left, 0px));
+        padding-right: max(16px, env(safe-area-inset-right, 0px));
+      }
+      #pond {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        touch-action: none;
+        cursor: crosshair;
+        transition: opacity 1.2s linear;
+      }
+      .intro {
+        position: fixed;
+        left: 0; right: 0;
+        top: 26%;
+        padding-left: max(16px, env(safe-area-inset-left, 0px));
+        padding-right: max(16px, env(safe-area-inset-right, 0px));
+        display: grid;
+        justify-items: center;
+        gap: 0.9rem;
+        text-align: center;
+        pointer-events: none;
+        animation: intro-out 3s ease-in 6s forwards;
+      }
+      .intro h1 {
+        margin: 0;
+        font-family: var(--display);
+        font-style: italic;
+        font-weight: 400;
+        font-size: clamp(2.4rem, 9vw, 3.6rem);
+        line-height: 1;
+        color: var(--glow);
+        opacity: 0.82;
+        text-wrap: balance;
+        letter-spacing: 0.01em;
+      }
+      .intro p {
+        margin: 0;
+        max-width: 30ch;
+        font-size: 0.95rem;
+        font-weight: 300;
+        line-height: 1.55;
+        letter-spacing: 0.02em;
+        text-wrap: balance;
+      }
+      @keyframes intro-out { to { opacity: 0; visibility: hidden; } }
+
+      .cue {
+        position: fixed;
+        left: 0; right: 0;
+        bottom: calc(24% + env(safe-area-inset-bottom, 0px));
+        text-align: center;
+        font-family: var(--display);
+        font-style: italic;
+        font-size: 1.45rem;
+        letter-spacing: 0.04em;
+        color: var(--dusk);
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .bar {
+        position: fixed;
+        left: 0; right: 0; bottom: 0;
+        padding-top: 12px;
+        padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+        padding-left: max(16px, env(safe-area-inset-left, 0px));
+        padding-right: max(16px, env(safe-area-inset-right, 0px));
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        transition: opacity 1.4s ease;
+      }
+      .bar.is-resting { opacity: 0; pointer-events: none; }
+      .bar button {
+        appearance: none;
+        background: transparent;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--dusk);
+        font: 400 0.8rem/1 var(--label);
+        letter-spacing: 0.12em;
+        text-transform: lowercase;
+        padding: 0.7rem 1.05rem;
+        min-height: 40px;
+        cursor: pointer;
+        font-variant-numeric: tabular-nums;
+        transition: color 0.4s, border-color 0.4s;
+      }
+      .bar button[aria-pressed="true"] { color: var(--glow); border-color: var(--line-on); }
+      .bar button:focus-visible { outline: 1px solid var(--ember); outline-offset: 3px; }
+
+      .goodnight {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        font-family: var(--display);
+        font-style: italic;
+        font-size: 1.2rem;
+        color: var(--dusk);
+        opacity: 0.35;
+        pointer-events: none;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .intro { animation-duration: 0.01s; animation-delay: 8s; }
+      }
+    </style>
+</head>
+<body>
+<canvas id="pond" aria-label="Fireflies drifting over a dark pond"></canvas>
+
+<div class="intro">
+  <h1>Firefly Pond</h1>
+  <p>Touch the water to send a ripple. Hold the air and the fireflies drift to you.</p>
+</div>
+
+<div class="cue" id="cue" aria-live="polite"></div>
+<div class="goodnight" id="goodnight" hidden>goodnight</div>
+
+<div class="bar" id="bar">
+  <button type="button" id="btn-sound" aria-pressed="false">sound</button>
+  <button type="button" id="btn-breathe" aria-pressed="false">breathe</button>
+  <button type="button" id="btn-sleep" aria-pressed="true">sleep 20m</button>
+  <button type="button" id="btn-full" aria-pressed="false" hidden>full screen</button>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const cv = document.getElementById('pond');
+  const ctx = cv.getContext('2d');
+  const bar = document.getElementById('bar');
+  const cueEl = document.getElementById('cue');
+  const goodnightEl = document.getElementById('goodnight');
+  const btnSound = document.getElementById('btn-sound');
+  const btnBreathe = document.getElementById('btn-breathe');
+  const btnSleep = document.getElementById('btn-sleep');
+  const btnFull = document.getElementById('btn-full');
+
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const TIME_SCALE = reduceMotion ? 0.55 : 1;
+  const TAU = Math.PI * 2;
+  const rand = (a, b) => a + Math.random() * (b - a);
+
+  let W = 0, H = 0, DPR = 1, horizon = 0;
+  let flies = [], stars = [], ripples = [];
+  let t = 0;
+
+  // ---------- light sprites (pre-rendered so each frame is just drawImage) ----------
+  function makeGlow(core, mid, edge) {
+    const s = 128, c = document.createElement('canvas');
+    c.width = c.height = s;
+    const g = c.getContext('2d');
+    const grad = g.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+    grad.addColorStop(0, core);
+    grad.addColorStop(0.08, core);
+    grad.addColorStop(0.22, mid);
+    grad.addColorStop(0.5, edge);
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, s, s);
+    return c;
+  }
+  const sprites = [
+    makeGlow('rgba(255,244,214,1)', 'rgba(255,196,104,0.62)', 'rgba(232,132,48,0.12)'),  // amber
+    makeGlow('rgba(255,248,214,1)', 'rgba(246,214,110,0.58)', 'rgba(200,170,52,0.11)'),  // honey
+    makeGlow('rgba(250,250,218,1)', 'rgba(218,226,118,0.52)', 'rgba(150,170,60,0.10)')   // pale lime, like real Photinus
+  ];
+  const streak = (() => {
+    const c = document.createElement('canvas');
+    c.width = 64; c.height = 8;
+    const g = c.getContext('2d');
+    const grad = g.createLinearGradient(0, 0, 64, 0);
+    grad.addColorStop(0, 'rgba(255,200,120,0)');
+    grad.addColorStop(0.5, 'rgba(255,214,150,0.9)');
+    grad.addColorStop(1, 'rgba(255,200,120,0)');
+    g.fillStyle = grad;
+    g.fillRect(0, 3, 64, 2);
+    return c;
+  })();
+
+  // ---------- scene setup ----------
+  function makeFly(x, y) {
+    const period = rand(4.6, 7.4); // seconds between flashes
+    return {
+      x: x ?? rand(0, W),
+      y: y ?? rand(H * 0.22, horizon - 20),
+      vx: 0, vy: 0,
+      z: rand(0.45, 1),                 // depth: nearer flies are larger and faster
+      seed: rand(0, 100),
+      theta: rand(0, TAU),
+      omega: TAU / period,
+      sprite: sprites[(Math.random() * sprites.length) | 0],
+      lit: 0
+    };
+  }
+
+  function resize() {
+    DPR = Math.min(2, window.devicePixelRatio || 1);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    cv.width = Math.round(W * DPR);
+    cv.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    horizon = Math.round(H * 0.6);
+
+    const want = Math.max(26, Math.min(64, Math.round((W * H) / 15000)));
+    while (flies.length < want) flies.push(makeFly());
+    if (flies.length > want) flies.length = want;
+    flies.forEach(f => { f.x = Math.min(f.x, W); f.y = Math.min(f.y, horizon - 12); });
+
+    stars = [];
+    const nStars = Math.round((W * horizon) / 5200);
+    for (let i = 0; i < nStars; i++) {
+      stars.push({
+        x: rand(0, W),
+        y: Math.pow(Math.random(), 1.6) * horizon * 0.82,
+        r: rand(0.35, 1.05),
+        a: rand(0.08, 0.42),
+        tw: rand(0.05, 0.22),
+        ph: rand(0, TAU)
+      });
+    }
+  }
+
+  // ---------- interaction ----------
+  const touch = { active: false, x: 0, y: 0, strength: 0 };
+
+  function addRipple(x, y, big) {
+    ripples.push({ x, y, r: 2, life: 0, max: big ? 7 : 5.5, speed: big ? 46 : 32 });
+    if (ripples.length > 14) ripples.shift();
+  }
+
+  cv.addEventListener('pointerdown', e => {
+    wake();
+    if (sleeping) { restartFromSleep(); return; }
+    cv.setPointerCapture?.(e.pointerId);
+    if (e.clientY > horizon + 4) {
+      addRipple(e.clientX, e.clientY, true);
+      audio.chime(e.clientX / W, 1);
+    } else {
+      touch.active = true;
+      touch.x = e.clientX; touch.y = e.clientY;
+    }
+  });
+  cv.addEventListener('pointermove', e => {
+    if (!touch.active) return;
+    touch.x = e.clientX;
+    touch.y = Math.min(e.clientY, horizon - 10);
+  });
+  const release = () => { touch.active = false; };
+  cv.addEventListener('pointerup', release);
+  cv.addEventListener('pointercancel', release);
+
+  // ---------- controls that rest out of the way ----------
+  let idleTimer = 0;
+  function wake() {
+    bar.classList.remove('is-resting');
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => bar.classList.add('is-resting'), 5000);
+  }
+  wake();
+  bar.addEventListener('pointerdown', e => { e.stopPropagation(); wake(); });
+
+  // Breathing: 4 s in, 6 s out, about six breaths a minute.
+  let breathing = false;
+  const IN = 4, OUT = 6;
+  let breathStart = 0;
+  btnBreathe.addEventListener('click', () => {
+    breathing = !breathing;
+    breathStart = t;
+    btnBreathe.setAttribute('aria-pressed', String(breathing));
+    if (!breathing) cueEl.style.opacity = 0;
+  });
+
+  // Sleep timer: the whole scene and the sound fade out over its last three minutes.
+  const SLEEP_CHOICES = [20, 30, 45, 10, 0];
+  let sleepIdx = 0;
+  let sleepEndsAt = 0;
+  let sleeping = false;
+  function setSleep(idx) {
+    sleepIdx = idx;
+    const mins = SLEEP_CHOICES[sleepIdx];
+    sleepEndsAt = mins ? performance.now() + mins * 60000 : 0;
+    btnSleep.setAttribute('aria-pressed', String(!!mins));
+    updateSleepLabel();
+  }
+  function updateSleepLabel() {
+    const mins = SLEEP_CHOICES[sleepIdx];
+    if (!mins) { btnSleep.textContent = 'sleep off'; return; }
+    const left = Math.max(0, Math.ceil((sleepEndsAt - performance.now()) / 60000));
+    btnSleep.textContent = 'sleep ' + left + 'm';
+  }
+  btnSleep.addEventListener('click', () => setSleep((sleepIdx + 1) % SLEEP_CHOICES.length));
+  setSleep(0);
+  setInterval(updateSleepLabel, 15000);
+
+  function masterLevel(now) {
+    if (!sleepEndsAt) return 1;
+    const left = (sleepEndsAt - now) / 1000;
+    const FADE = 180;
+    return Math.max(0, Math.min(1, left / FADE));
+  }
+  function goToSleep() {
+    sleeping = true;
+    cv.style.opacity = 0;
+    cueEl.style.opacity = 0;
+    bar.classList.add('is-resting');
+    goodnightEl.hidden = false;
+    setTimeout(() => { if (sleeping) goodnightEl.hidden = true; }, 6000);
+    audio.stop();
+    releaseWakeLock();
+  }
+  function restartFromSleep() {
+    sleeping = false;
+    goodnightEl.hidden = true;
+    setSleep(sleepIdx);
+    if (btnSound.getAttribute('aria-pressed') === 'true') audio.start();
+    requestWakeLock();
+    last = performance.now();
+    requestAnimationFrame(frame);
+  }
+
+  // Full screen where the browser allows it.
+  if (document.fullscreenEnabled) {
+    btnFull.hidden = false;
+    btnFull.addEventListener('click', () => {
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      else document.documentElement.requestFullscreen().catch(() => {});
+    });
+    document.addEventListener('fullscreenchange', () => {
+      btnFull.setAttribute('aria-pressed', String(!!document.fullscreenElement));
+    });
+  }
+
+  // Keep the screen awake while watching; let it go once the sleep timer ends.
+  let wakeLock = null;
+  async function requestWakeLock() {
+    try {
+      if ('wakeLock' in navigator && !sleeping && document.visibilityState === 'visible') {
+        wakeLock = await navigator.wakeLock.request('screen');
+      }
+    } catch (_) { wakeLock = null; }
+  }
+  function releaseWakeLock() {
+    try { wakeLock && wakeLock.release(); } catch (_) {}
+    wakeLock = null;
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') requestWakeLock();
+  });
+  requestWakeLock();
+  document.addEventListener('pointerdown', () => { if (!wakeLock) requestWakeLock(); });
+
+  // ---------- sound: distant water and a few soft pentatonic bells ----------
+  const audio = (() => {
+    let ac = null, master = null, bus = null, noiseSrc = null, bellTimer = 0, on = false;
+    const SCALE = [146.83, 174.61, 196.0, 220.0, 261.63, 293.66, 349.23, 392.0]; // D minor pentatonic-ish, low and round
+
+    function build() {
+      ac = new (window.AudioContext || window.webkitAudioContext)();
+      master = ac.createGain();
+      master.gain.value = 0;
+      master.connect(ac.destination);
+
+      // gentle echo for the bells
+      bus = ac.createGain();
+      const delay = ac.createDelay(2);
+      delay.delayTime.value = 0.52;
+      const fb = ac.createGain(); fb.gain.value = 0.38;
+      const damp = ac.createBiquadFilter(); damp.type = 'lowpass'; damp.frequency.value = 1400;
+      bus.connect(master);
+      bus.connect(delay); delay.connect(damp); damp.connect(fb); fb.connect(delay);
+      damp.connect(master);
+    }
+
+    function startWater() {
+      const len = ac.sampleRate * 4;
+      const buf = ac.createBuffer(1, len, ac.sampleRate);
+      const d = buf.getChannelData(0);
+      let last = 0;
+      for (let i = 0; i < len; i++) {           // brown noise
+        last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02;
+        d[i] = last * 3.2;
+      }
+      noiseSrc = ac.createBufferSource();
+      noiseSrc.buffer = buf; noiseSrc.loop = true;
+      const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 420; lp.Q.value = 0.4;
+      const lfo = ac.createOscillator(); lfo.frequency.value = 0.07;
+      const lfoAmt = ac.createGain(); lfoAmt.gain.value = 160;
+      lfo.connect(lfoAmt); lfoAmt.connect(lp.frequency);
+      const g = ac.createGain(); g.gain.value = 0.22;
+      noiseSrc.connect(lp); lp.connect(g); g.connect(master);
+      noiseSrc.start(); lfo.start();
+      noiseSrc._lfo = lfo;
+    }
+
+    function chime(pos, loud) {
+      if (!on || !ac) return;
+      const idx = Math.max(0, Math.min(SCALE.length - 1, Math.round((pos ?? Math.random()) * (SCALE.length - 1))));
+      const f = SCALE[idx];
+      const now = ac.currentTime;
+      const g = ac.createGain();
+      g.gain.setValueAtTime(0, now);
+      g.gain.linearRampToValueAtTime(0.05 * (loud || 0.6), now + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 5.5);
+      const o1 = ac.createOscillator(); o1.type = 'sine'; o1.frequency.value = f;
+      const o2 = ac.createOscillator(); o2.type = 'sine'; o2.frequency.value = f * 2.01;
+      const g2 = ac.createGain(); g2.gain.value = 0.18;
+      o1.connect(g); o2.connect(g2); g2.connect(g); g.connect(bus);
+      o1.start(now); o2.start(now); o1.stop(now + 6); o2.stop(now + 6);
+    }
+
+    function scheduleBell() {
+      clearTimeout(bellTimer);
+      bellTimer = setTimeout(() => { chime(); scheduleBell(); }, rand(7000, 15000));
+    }
+
+    return {
+      start() {
+        try {
+          if (!ac) { build(); startWater(); }
+          ac.resume();
+          on = true;
+          master.gain.cancelScheduledValues(ac.currentTime);
+          master.gain.setTargetAtTime(0.9, ac.currentTime, 1.2);
+          scheduleBell();
+        } catch (_) { on = false; }
+      },
+      stop() {
+        on = false;
+        clearTimeout(bellTimer);
+        if (ac) master.gain.setTargetAtTime(0, ac.currentTime, 0.6);
+      },
+      level(v) { if (ac && on) master.gain.setTargetAtTime(0.9 * v, ac.currentTime, 0.5); },
+      chime,
+      get on() { return on; }
+    };
+  })();
+
+  btnSound.addEventListener('click', () => {
+    if (audio.on) audio.stop(); else audio.start();
+    btnSound.setAttribute('aria-pressed', String(audio.on));
+  });
+
+  // ---------- simulation ----------
+  let fishTimer = rand(6, 14);
+
+  function update(dt) {
+    t += dt;
+
+    // Synchronous fireflies: each one nudges its flash toward the swarm's rhythm
+    // (Kuramoto coupling). Coupling rises and falls over four minutes, so the
+    // pond drifts between scattered twinkling and slow waves of shared light.
+    const K = 1.5 * Math.pow(Math.max(0, Math.sin((TAU * t) / 240 - 0.6)), 2);
+    let sx = 0, sy = 0;
+    for (const f of flies) { sx += Math.cos(f.theta); sy += Math.sin(f.theta); }
+    const R = Math.hypot(sx, sy) / flies.length;
+    const psi = Math.atan2(sy, sx);
+
+    const top = H * 0.16, low = horizon - 14;
+    if (touch.active) touch.strength = Math.min(1, touch.strength + dt * 0.8);
+    else touch.strength = Math.max(0, touch.strength - dt * 0.5);
+
+    for (const f of flies) {
+      f.theta += (f.omega + K * R * Math.sin(psi - f.theta)) * dt;
+      if (f.theta > TAU) f.theta -= TAU;
+
+      const a = Math.sin(f.x * 0.0042 + t * 0.07 + f.seed) + Math.sin(f.y * 0.0061 - t * 0.053 + f.seed * 2.1);
+      const ang = a * Math.PI * 0.9;
+      const sp = 11 * f.z;
+      let tvx = Math.cos(ang) * sp;
+      let tvy = Math.sin(ang) * sp * 0.55;
+      if (f.y > low - 20) tvy -= (f.y - (low - 20)) * 0.6;
+      if (f.y < top) tvy += (top - f.y) * 0.4;
+
+      if (touch.strength > 0) {
+        const dx = touch.x - f.x, dy = touch.y - f.y;
+        const d = Math.hypot(dx, dy) || 1;
+        const reach = Math.max(W, H) * 0.42;
+        if (d < reach) {
+          const pull = 26 * touch.strength * (1 - d / reach) * (d > 24 ? 1 : d / 24);
+          tvx += (dx / d) * pull;
+          tvy += (dy / d) * pull;
+        }
+      }
+
+      const k = Math.min(1, dt * 0.9);
+      f.vx += (tvx - f.vx) * k;
+      f.vy += (tvy - f.vy) * k;
+      f.x += f.vx * dt;
+      f.y += f.vy * dt;
+      if (f.y > low) f.y = low;
+      if (f.x < -30) f.x = W + 30;
+      if (f.x > W + 30) f.x = -30;
+
+      const c = Math.cos(f.theta);
+      const flash = c > 0.55 ? Math.pow((c - 0.55) / 0.45, 2) : 0;
+      f.lit = flash;
+    }
+
+    for (const r of ripples) {
+      r.life += dt;
+      r.r += r.speed * dt * (1 - r.life / (r.max * 1.15));
+    }
+    ripples = ripples.filter(r => r.life < r.max);
+
+    // now and then a fish rises somewhere out on the water
+    fishTimer -= dt;
+    if (fishTimer <= 0) {
+      fishTimer = rand(7, 18);
+      addRipple(rand(W * 0.1, W * 0.9), rand(horizon + 18, H * 0.92), false);
+    }
+  }
+
+  // ---------- drawing ----------
+  function rippleShift(x, y) {
+    let off = 0;
+    for (const r of ripples) {
+      const de = Math.hypot(x - r.x, (y - r.y) * 4);
+      const band = de - r.r;
+      if (band > -40 && band < 40) {
+        off += Math.sin(band * 0.18) * 7 * (1 - Math.abs(band) / 40) * (1 - r.life / r.max);
+      }
+    }
+    return off;
+  }
+
+  function draw() {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.globalCompositeOperation = 'lighter';
+
+    // stars, and their faint broken reflections
+    ctx.fillStyle = 'rgb(255,236,210)';
+    for (const s of stars) {
+      const a = s.a * (0.65 + 0.35 * Math.sin(t * s.tw * TAU * 0.25 + s.ph));
+      ctx.globalAlpha = a;
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, TAU); ctx.fill();
+      const ry = horizon + (horizon - s.y) * 0.92;
+      if (ry < H) {
+        const wob = Math.sin(ry * 0.09 + t * 0.9 + s.ph) * 2.5 + rippleShift(s.x, ry);
+        ctx.globalAlpha = a * 0.16;
+        ctx.fillRect(s.x + wob - s.r * 1.6, ry, s.r * 3.2, 0.9);
+      }
+    }
+
+    // low haze along the far shore
+    ctx.globalAlpha = 1;
+    const haze = ctx.createLinearGradient(0, horizon - 70, 0, horizon + 6);
+    haze.addColorStop(0, 'rgba(255,170,90,0)');
+    haze.addColorStop(1, 'rgba(255,170,90,0.035)');
+    ctx.fillStyle = haze;
+    ctx.fillRect(0, horizon - 70, W, 76);
+    const shore = ctx.createLinearGradient(0, 0, W, 0);
+    shore.addColorStop(0, 'rgba(242,180,90,0)');
+    shore.addColorStop(0.5, 'rgba(242,180,90,0.07)');
+    shore.addColorStop(1, 'rgba(242,180,90,0)');
+    ctx.fillStyle = shore;
+    ctx.fillRect(0, horizon, W, 1);
+
+    // breath: a slow swell of light along the waterline
+    if (breathing) {
+      const p = (t - breathStart) % (IN + OUT);
+      const e = p < IN ? easeInOut(p / IN) : 1 - easeInOut((p - IN) / OUT);
+      const rx = W * (0.35 + 0.3 * e);
+      ctx.save();
+      ctx.translate(W / 2, horizon);
+      ctx.scale(1, 0.32);
+      const g = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
+      g.addColorStop(0, `rgba(255,190,110,${0.05 + 0.1 * e})`);
+      g.addColorStop(1, 'rgba(255,190,110,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(-rx, -rx, rx * 2, rx * 2);
+      ctx.restore();
+
+      // the words breathe with it
+      const seg = p < IN ? p / IN : (p - IN) / OUT;
+      cueEl.textContent = p < IN ? 'breathe in' : 'breathe out';
+      cueEl.style.opacity = (Math.sin(seg * Math.PI) * 0.75).toFixed(3);
+    }
+
+    // where a finger rests in the air, a hint of warmth
+    if (touch.strength > 0.01) {
+      const s = 70;
+      ctx.globalAlpha = 0.09 * touch.strength;
+      ctx.drawImage(sprites[0], touch.x - s, touch.y - s, s * 2, s * 2);
+    }
+
+    // fireflies and their reflections
+    const scale = Math.min(1.25, Math.max(0.85, Math.min(W, H) / 420));
+    for (const f of flies) {
+      const lit = f.lit;
+      const alpha = 0.07 + 0.93 * lit;
+      const size = (7 + 30 * lit) * f.z * scale;
+
+      ctx.globalAlpha = alpha * (0.55 + 0.45 * f.z);
+      ctx.drawImage(f.sprite, f.x - size, f.y - size, size * 2, size * 2);
+
+      const ry = horizon + (horizon - f.y) * 0.92;
+      if (ry > H + size) continue;
+      const depth = (ry - horizon) / (H - horizon);
+      const fade = Math.max(0, 1 - depth * 0.8);
+      const wob = Math.sin(ry * 0.05 + t * 1.3 + f.seed) * (2 + depth * 5) + rippleShift(f.x, ry);
+      const rx = f.x + wob;
+
+      ctx.globalAlpha = alpha * 0.32 * fade;
+      ctx.drawImage(f.sprite, rx - size * 0.85, ry - size * 1.5, size * 1.7, size * 3);
+
+      if (lit > 0.05) {
+        for (let k = -1; k <= 1; k++) {
+          const sy = ry + k * size * 0.55;
+          const sw = size * (2.2 + 0.8 * Math.sin(t * 1.7 + k * 2 + f.seed));
+          const sx = rx + Math.sin(t * 2.1 + k * 1.3 + f.seed) * 4;
+          ctx.globalAlpha = lit * 0.22 * fade * (k === 0 ? 1 : 0.6);
+          ctx.drawImage(streak, sx - sw / 2, sy - 4, sw, 8);
+        }
+      }
+    }
+
+    // ripples catch a little of the warm light
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.lineWidth = 1;
+    for (const r of ripples) {
+      const k = 1 - r.life / r.max;
+      const a = Math.sin(Math.min(1, r.life / 0.5) * Math.PI / 2) * k * k;
+      for (let i = 0; i < 3; i++) {
+        const rr = r.r * (1 - i * 0.26);
+        if (rr <= 1) continue;
+        ctx.globalAlpha = a * (0.32 - i * 0.08);
+        ctx.strokeStyle = 'rgb(242,180,90)';
+        ctx.beginPath();
+        ctx.ellipse(r.x, r.y, rr, rr * 0.24, 0, 0, TAU);
+        ctx.stroke();
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function easeInOut(x) { return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2; }
+
+  // ---------- loop ----------
+  let last = performance.now();
+  function frame(now) {
+    if (sleeping) return;
+    const dt = Math.min(0.05, (now - last) / 1000) * TIME_SCALE;
+    last = now;
+
+    const level = masterLevel(now);
+    cv.style.opacity = level.toFixed(3);
+    audio.level(level);
+    if (sleepEndsAt && level <= 0) { goToSleep(); return; }
+
+    update(dt);
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  // let the pond settle for a few seconds so the first frame already has life in it
+  for (let i = 0; i < 90; i++) update(1 / 30);
+  draw();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
