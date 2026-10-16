@@ -12,7 +12,15 @@ My personal website: a dark-themed [Astro](https://astro.build) site styled with
 | `npm run preview` | Preview the production build locally            |
 | `npm run check`   | Type-check `.astro` and `.ts` files             |
 
-Every push to `main` is deployed by Netlify automatically. To run the server-side Lab demos (Blobs, Edge Functions) locally, use the [Netlify CLI](https://docs.netlify.com/cli/local-development/): `netlify link`, then `netlify dev`.
+To run the server-side Lab demos (Blobs, Edge Functions) locally, use the [Netlify CLI](https://docs.netlify.com/cli/local-development/): `netlify link`, then `netlify dev`.
+
+## Deploying
+
+Netlify deploys every build of `main` to production. The free plan allows about **20 production deploys a month** (300 credits at 15 credits per deploy), so changes ship in batches:
+
+1. **Work on a branch and open a pull request.** Netlify builds a free Deploy Preview with its own URL for checking the changes.
+2. **Merge when ready.** The merge is one production deploy for the whole batch.
+3. **Docs-only commits** (like this README) can go straight to `main` with `[skip netlify]` in the commit message, which skips the build. Don't use the tag on pull request commits: a squash merge would carry it into `main` and skip the deploy.
 
 ## Making changes
 

@@ -1,6 +1,16 @@
 # CLAUDE.md
 
-Personal website built with Astro 5, Tailwind CSS v4 and the Netlify adapter. Pushes to `main` deploy to Netlify.
+Personal website built with Astro 5, Tailwind CSS v4 and the Netlify adapter. Every build of `main` is a Netlify production deploy. Deploys are rationed, so read **Deploying** before pushing.
+
+## Deploying
+
+The site is on Netlify's free plan: 300 credits a month, hard capped. Each production deploy (a build of `main`) costs 15 credits, so there are at most about 20 a month. Deploy Previews, branch deploys and failed builds are free.
+
+- **Never push site changes straight to `main`.** Commit to a feature branch, push it, and open a pull request against `main`. Netlify builds a free Deploy Preview for the PR. The owner reviews it and merges, and the merge is the single production deploy.
+- **Batch work.** Group related changes into one PR instead of opening several small ones.
+- **Docs-only changes** (README.md, CLAUDE.md, `.vscode/`, nothing that affects the built site) may be pushed directly to `main`. Include `[skip netlify]` in the commit message so no build runs. Netlify only checks the latest commit in a push, so it must be the last one.
+- **Never put `[skip netlify]` in commits on a PR branch.** A squash merge would carry the tag into `main` and silently skip the production deploy.
+- Run `npm run build` and `npm run check` before pushing any branch that changes the site.
 
 ## Commands
 
