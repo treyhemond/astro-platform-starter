@@ -185,7 +185,16 @@
         @apply text-fg underline decoration-accent/40 decoration-1 underline-offset-4 transition-colors hover:decoration-accent;
     }
 
-    /* Long-form content: blog posts, project write-ups and the lab demos. */
+    /* Résumé page sections: small-caps heading with a rule underneath. */
+    .resume-section {
+        @apply mt-9 print:mt-4;
+
+        > h2 {
+            @apply mb-4 break-after-avoid border-b border-line pb-2 font-mono text-xs font-semibold tracking-[0.2em] text-accent uppercase print:mb-2 print:pb-1;
+        }
+    }
+
+    /* Long-form content: blog posts and case studies. */
     .prose {
         @apply max-w-none text-[1.05rem] leading-relaxed text-fg/85;
 
@@ -265,6 +274,59 @@
 
         > :last-child {
             @apply mb-0;
+        }
+    }
+}
+
+/* Print: black on white, no chrome. The site header, footer and backgrounds carry print:hidden.
+   Redefining the tokens recolors every utility that uses them. */
+@media print {
+    @page {
+        margin: 0.5in;
+    }
+
+    @layer base {
+        :root {
+            --color-canvas: #fff;
+            --color-surface: #fff;
+            --color-elevated: #fff;
+            --color-fg: #111;
+            --color-muted: #333;
+            --color-subtle: #555;
+            --color-line: #c8ccd4;
+            --color-line-strong: #9aa0ab;
+            --color-accent: #1f3a68;
+            --color-accent-2: #1f3a68;
+        }
+
+        html {
+            color-scheme: light;
+            font-size: 12.5px;
+        }
+
+        body {
+            background: #fff;
+        }
+
+        h1,
+        h2,
+        h3,
+        .text-white {
+            color: var(--color-fg);
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .text-gradient {
+            background: none;
+            color: var(--color-accent);
+        }
+
+        .js [data-reveal] {
+            opacity: 1;
+            translate: none;
         }
     }
 }

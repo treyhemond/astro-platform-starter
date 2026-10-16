@@ -2,27 +2,47 @@
 import Section from '../ui/Section.astro';
 import Icon from '../ui/Icon.astro';
 import { site } from '../../config/site';
+import { resume } from '../../data/resume';
 
-const { title, bio, focus } = site.about;
+const facts = [
+    { icon: 'map-pin' as const, text: `Based in ${resume.location.city}, ${resume.location.region}` },
+    { icon: 'graduation-cap' as const, text: `${resume.education[0].degree}, ${resume.education[0].school}` },
+    { icon: 'briefcase' as const, text: resume.headline.join(' • ') }
+];
 ---
 
-<Section id="about" eyebrow="About" title={title}>
-    <div class="grid gap-12 lg:grid-cols-2 lg:gap-16">
-        <div class="space-y-5 text-lg leading-relaxed text-muted" data-reveal>
-            {bio.map((paragraph) => <p>{paragraph}</p>)}
+<Section id="about" eyebrow="About" title={site.about.title}>
+    <div class="grid gap-12 lg:grid-cols-[1fr_1.35fr] lg:gap-16">
+        <div data-reveal>
+            <div class="space-y-5 text-lg leading-relaxed text-muted">
+                {site.about.bio.map((paragraph) => <p>{paragraph}</p>)}
+            </div>
+            <ul class="mt-8 space-y-3 border-t border-line pt-8 text-sm text-fg/90">
+                {
+                    facts.map((fact) => (
+                        <li class="flex items-center gap-3">
+                            <Icon name={fact.icon} class="size-4 shrink-0 text-accent" />
+                            {fact.text}
+                        </li>
+                    ))
+                }
+            </ul>
         </div>
 
-        <ul class="grid gap-4">
+        <ul class="grid gap-4 sm:grid-cols-2">
             {
-                focus.map((item, i) => (
-                    <li data-spotlight class="card card-hover flex gap-5 p-5 sm:p-6" data-reveal data-reveal-delay={String(i * 100)}>
-                        <span class="grid size-11 shrink-0 place-items-center rounded-xl border border-line bg-gradient-to-br from-accent/15 to-accent-2/10 text-accent">
-                            <Icon name={item.icon} />
+                resume.skills.map((skill, i) => (
+                    <li data-spotlight class="card card-hover flex flex-col p-6" data-reveal data-reveal-delay={String(i * 80)}>
+                        <span class="grid size-11 place-items-center rounded-xl border border-line bg-gradient-to-br from-accent/15 to-accent-2/10 text-accent">
+                            <Icon name={skill.icon} />
                         </span>
-                        <div>
-                            <h3 class="text-lg">{item.title}</h3>
-                            <p class="mt-1 leading-relaxed text-muted">{item.description}</p>
-                        </div>
+                        <h3 class="mt-5 text-lg">{skill.area}</h3>
+                        <p class="mt-2 flex-1 text-sm leading-relaxed text-muted">{skill.proof}</p>
+                        <ul class="mt-5 flex flex-wrap gap-1.5">
+                            {skill.items.map((item) => (
+                                <li class="tag">{item}</li>
+                            ))}
+                        </ul>
                     </li>
                 ))
             }

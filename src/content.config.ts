@@ -4,26 +4,27 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
-const projects = defineCollection({
-    loader: glob({ pattern: '**/[^_]*.md', base: './src/content/projects' }),
+/** Case studies: one page per piece of work, with headline results. */
+const work = defineCollection({
+    loader: glob({ pattern: '**/[^_]*.md', base: './src/content/work' }),
     schema: z.object({
         title: z.string(),
         description: z.string(),
-        /** Used for sorting (newest first). Use the start date or last significant update. */
+        category: z.enum(['Sales', 'Communications & PR', 'Campaigns & Organizing', 'Leadership']),
+        role: z.string(),
+        org: z.string(),
+        /** Display dates, e.g. "Jan 2019 – May 2021". */
+        period: z.string(),
+        /** Used for sorting (newest first). Use the end date, or today's date for current work. */
         date: z.coerce.date(),
-        status: z.enum(['live', 'in-progress', 'planned', 'archived']).default('in-progress'),
-        tags: z.array(z.string()).default([]),
-        /** Featured projects appear on the home page. */
+        /** Headline results shown on cards and at the top of the page. Keep values short ("$10K+", "#1"). */
+        metrics: z.array(z.object({ value: z.string(), label: z.string() })).default([]),
+        /** Press coverage, published work, etc. */
+        links: z.array(z.object({ label: z.string(), href: z.string() })).default([]),
+        /** Featured work appears on the home page (up to four). */
         featured: z.boolean().default(false),
         /** Drafts are visible in `npm run dev` but excluded from production builds. */
-        draft: z.boolean().default(false),
-        links: z
-            .object({
-                /** Where the project lives — an absolute URL or a path on this site. */
-                live: z.string().optional(),
-                repo: z.string().url().optional()
-            })
-            .default({})
+        draft: z.boolean().default(false)
     })
 });
 
@@ -39,4 +40,4 @@ const blog = defineCollection({
     })
 });
 
-export const collections = { projects, blog };
+export const collections = { work, blog };

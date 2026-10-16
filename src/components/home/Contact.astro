@@ -1,13 +1,9 @@
 ---
 import Icon from '../ui/Icon.astro';
-import SocialLinks from '../ui/SocialLinks.astro';
+import CopyButton from '../ui/CopyButton.astro';
 import { site } from '../../config/site';
 
-const { title, body, email } = site.contact;
-const fallback = site.socials[0];
-const primary = email
-    ? { href: `mailto:${email}`, label: 'Email me', icon: 'mail' as const, external: false }
-    : { href: fallback.href, label: `Find me on ${fallback.label}`, icon: fallback.icon, external: true };
+const { title, body } = site.contact;
 ---
 
 <section id="contact" class="container-page py-16 sm:py-24">
@@ -24,12 +20,20 @@ const primary = email
         <h2 class="mt-5 text-4xl sm:text-5xl">{title}</h2>
         <p class="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-muted">{body}</p>
 
-        <div class="mt-10 flex flex-col items-center gap-6">
-            <a href={primary.href} class="btn btn-lg" target={primary.external ? '_blank' : undefined} rel={primary.external ? 'noopener noreferrer' : undefined}>
-                <Icon name={primary.icon} class="size-[1.15rem]" />
-                {primary.label}
+        <div class="mt-10 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+            <a href={`mailto:${site.email}`} class="btn btn-lg">
+                <Icon name="mail" class="size-[1.15rem]" />
+                Email me
             </a>
-            {site.socials.length > 1 && <SocialLinks />}
+            <a href={site.linkedin} class="btn btn-ghost btn-lg" target="_blank" rel="me noopener noreferrer">
+                <Icon name="linkedin" class="size-[1.15rem]" />
+                Connect on LinkedIn
+            </a>
+        </div>
+
+        <div class="mt-8 inline-flex items-center gap-2 rounded-full border border-line bg-canvas/60 py-1.5 pr-1.5 pl-4 font-mono text-sm text-muted">
+            {site.email}
+            <CopyButton value={site.email} label="Copy email address" />
         </div>
     </div>
 </section>

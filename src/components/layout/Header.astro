@@ -7,7 +7,7 @@ const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 const isActive = (href: string) => !href.includes('#') && href !== '/' && (path === href || path.startsWith(`${href}/`));
 ---
 
-<header data-header class="group/header sticky top-0 z-50 border-b border-transparent transition-colors duration-300 data-[scrolled]:border-line data-[scrolled]:bg-canvas/75 data-[scrolled]:backdrop-blur-xl">
+<header data-header class="group/header sticky top-0 z-50 print:hidden border-b border-transparent transition-colors duration-300 data-[scrolled]:border-line data-[scrolled]:bg-canvas/75 data-[scrolled]:backdrop-blur-xl">
     <nav class="container-page flex h-16 items-center justify-between gap-6" aria-label="Main">
         <a href="/" class="rounded-xl" aria-label={`${site.name} — home`}>
             <Logo />
@@ -29,7 +29,7 @@ const isActive = (href: string) => !href.includes('#') && href !== '/' && (path 
                 ))
             }
         </ul>
-        <a href="/#contact" class="btn hidden px-4 py-2 md:inline-flex">Say hello</a>
+        <a href="/#contact" class="btn hidden px-4 py-2 md:inline-flex">Get in touch</a>
 
         <!-- Mobile menu toggle (src/scripts/main.ts) -->
         <button
@@ -62,7 +62,7 @@ const isActive = (href: string) => !href.includes('#') && href !== '/' && (path 
                 ))
             }
             <li class="pt-5">
-                <a href="/#contact" class="btn w-full">Say hello</a>
+                <a href="/#contact" class="btn w-full">Get in touch</a>
             </li>
         </ul>
     </div>

@@ -1,33 +1,19 @@
 ---
-title: Hello, world
-description: The first post on the new site — what this place is for, how it's put together, and what's coming next.
+title: Welcome to my corner of the web
+description: What this site is for, what you'll find here, and the kind of work I'm looking for next.
 pubDate: 2026-10-16
-tags: [meta, astro]
+updatedDate: 2026-10-17
+tags: [meta]
 ---
 
-Welcome! This is the very first version of my personal site. It's intentionally a **work in progress**: rather than waiting until everything is perfect, I'm shipping the foundation now and improving it in the open.
+Welcome! This site is my professional home on the web: a place to share my experience, the work I'm proud of, and the occasional note along the way.
 
 ## What you'll find here
 
-- **[Projects](/projects)** — things I've built, am building, or want to build.
-- **[Blog](/blog)** — notes, how-tos and lessons learned along the way.
-- **[Lab](/lab)** — live experiments with server-side features like edge functions and blob storage.
-
-## How it's built
-
-The site runs on [Astro](https://astro.build) and is deployed to [Netlify](https://www.netlify.com) on every push. Posts like this one are plain Markdown files:
-
-```md
----
-title: Hello, world
-pubDate: 2026-10-16
----
-
-Welcome! This is the very first version of my personal site.
-```
-
-Drop a new file into `src/content/blog/` and it appears on the site, complete with its own page.
+- **[Work](/work)**: case studies with the context, what I did and the results.
+- **[Resume](/resume)**: my full experience, education and skills. It's also print-friendly.
+- **[Blog](/blog)**: notes on sales, communications, campaigns and whatever I'm learning.
 
 ## What's next
 
-More projects, more posts, and plenty of polish. Thanks for stopping by — check back soon.
+I'm open to new opportunities in **sales**, **communications and PR**, and **campaigns and advocacy**. If you're hiring, or just want to connect, [reach out](/#contact). I'd love to hear from you.

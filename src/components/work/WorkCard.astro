@@ -1,0 +1,39 @@
+---
+import Icon from '../ui/Icon.astro';
+import type { Work } from '../../lib/content';
+
+interface Props {
+    work: Work;
+    class?: string;
+}
+
+const { work, class: className } = Astro.props;
+const { title, description, category, role, org, metrics } = work.data;
+---
+
+<article data-spotlight class:list={['card card-hover group flex flex-col p-6 sm:p-7', className]}>
+    <div class="mb-5 flex items-center justify-between gap-4">
+        <span class="eyebrow">{category}</span>
+        <Icon name="arrow-up-right" class="size-5 text-subtle transition duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />
+    </div>
+    <h3 class="text-xl sm:text-2xl">
+        <!-- The ::after stretches the link over the whole card, so the entire card is clickable. -->
+        <a href={`/work/${work.id}`} class="after:absolute after:inset-0 after:rounded-2xl focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-accent">
+            {title}
+        </a>
+    </h3>
+    <p class="mt-2 text-sm text-subtle">{role} · {org}</p>
+    <p class="mt-4 flex-1 leading-relaxed text-muted">{description}</p>
+    {
+        metrics.length > 0 && (
+            <dl class="mt-6 grid grid-cols-2 gap-5 border-t border-line pt-5">
+                {metrics.slice(0, 2).map((metric) => (
+                    <div class="flex flex-col-reverse justify-end">
+                        <dt class="mt-1 text-xs leading-snug text-muted">{metric.label}</dt>
+                        <dd class="text-2xl font-semibold tracking-tight text-white">{metric.value}</dd>
+                    </div>
+                ))}
+            </dl>
+        )
+    }
+</article>

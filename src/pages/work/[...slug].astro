@@ -1,0 +1,67 @@
+---
+import { render } from 'astro:content';
+import ProseLayout from '../../layouts/ProseLayout.astro';
+import Icon from '../../components/ui/Icon.astro';
+import { getWork, type Work } from '../../lib/content';
+import { isExternal } from '../../lib/format';
+
+export async function getStaticPaths() {
+    const work = await getWork();
+    return work.map((item) => ({ params: { slug: item.id }, props: { item } }));
+}
+
+interface Props {
+    item: Work;
+}
+
+const { item } = Astro.props;
+const { title, description, category, role, org, period, metrics, links } = item.data;
+const { Content } = await render(item);
+---
+
+<ProseLayout title={title} description={description} back={{ href: '/work', label: 'All work' }}>
+    <Fragment slot="meta">
+        <span class="text-accent">{category}</span>
+        <span>{period}</span>
+    </Fragment>
+
+    <Fragment slot="header">
+        <p class="mt-6 flex items-center gap-2 text-fg/90">
+            <Icon name="briefcase" class="size-4 text-accent" />
+            {role} · {org}
+        </p>
+        {
+            metrics.length > 0 && (
+                <dl class="mt-8 grid gap-4 sm:grid-cols-3">
+                    {metrics.map((metric) => (
+                        <div class="card flex flex-col-reverse justify-end p-5">
+                            <dt class="mt-1.5 text-sm leading-snug text-muted">{metric.label}</dt>
+                            <dd class="text-gradient text-3xl font-semibold tracking-tight">{metric.value}</dd>
+                        </div>
+                    ))}
+                </dl>
+            )
+        }
+        {
+            links.length > 0 && (
+                <ul class="mt-6 flex flex-wrap gap-3">
+                    {links.map((link) => (
+                        <li>
+                            <a
+                                href={link.href}
+                                class="btn btn-ghost"
+                                target={isExternal(link.href) ? '_blank' : undefined}
+                                rel={isExternal(link.href) ? 'noopener noreferrer' : undefined}
+                            >
+                                {link.label}
+                                <Icon name={isExternal(link.href) ? 'arrow-up-right' : 'arrow-right'} class="size-4" />
+                            </a>
+                        </li>
+                    ))}
+                </ul>
+            )
+        }
+    </Fragment>
+
+    <Content />
+</ProseLayout>

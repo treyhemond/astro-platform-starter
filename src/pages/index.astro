@@ -1,17 +1,26 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/home/Hero.astro';
+import PressStrip from '../components/home/PressStrip.astro';
 import About from '../components/home/About.astro';
-import FeaturedProjects from '../components/home/FeaturedProjects.astro';
-import LatestPosts from '../components/home/LatestPosts.astro';
+import FeaturedWork from '../components/home/FeaturedWork.astro';
+import Experience from '../components/home/Experience.astro';
+import Education from '../components/home/Education.astro';
 import Contact from '../components/home/Contact.astro';
+import { personSchema } from '../lib/schema';
 ---
 
-<!-- Home page sections are independent components — reorder, remove or add new ones here. -->
+<!--
+  Home page sections are independent components — reorder, remove or add new ones here.
+  Also available: LatestPosts (src/components/home/LatestPosts.astro), worth adding once there are a few posts.
+-->
 <BaseLayout>
+    <script type="application/ld+json" slot="head" set:html={JSON.stringify(personSchema(Astro.site))} />
     <Hero />
+    <PressStrip />
     <About />
-    <FeaturedProjects />
-    <LatestPosts />
+    <FeaturedWork />
+    <Experience />
+    <Education />
     <Contact />
 </BaseLayout>
